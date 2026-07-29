@@ -676,13 +676,19 @@ function saveProduct(id){
 }
 function deleteProduct(id){
   const p = productById(id); if(!p) return;
-  const hasMove = state.movements.some(m=>m.productId===id);
-  if(hasMove){ toast("ลบไม่ได้ — ของนี้มีประวัติการเคลื่อนไหวแล้ว", true); return; }
-  const usedInRecipe = state.products.some(x=>x.recipe && (x.recipe.contentId===id || x.recipe.packagingId===id));
-  if(usedInRecipe){ toast("ลบไม่ได้ — ของนี้ถูกใช้ในสูตรสินค้าอื่น", true); return; }
+  const moveCount = state.movements.filter(m=>m.productId===id).length;
+  const runCount = state.productionRuns.filter(r=>r.productOutId===id).length;
+  const recipeUsers = state.products.filter(x=>x.recipe && (x.recipe.contentId===id || x.recipe.packagingId===id));
+  const poCount = state.purchaseOrders.filter(po=>po.items.some(it=>it.productId===id)).length;
+  const parts=[];
+  if(moveCount) parts.push(`ประวัติการเคลื่อนไหว ${fmt(moveCount)} รายการ`);
+  if(runCount) parts.push(`งานผลิต ${fmt(runCount)} รายการ`);
+  if(poCount) parts.push(`รายการในใบสั่ง ${fmt(poCount)} ใบ`);
+  if(recipeUsers.length) parts.push(`สูตรของ ${recipeUsers.map(x=>escapeHtml(x.name)).join(", ")}`);
+  const warn = parts.length? `<div class="hint" style="margin-top:8px;color:var(--danger)">⚠️ จะลบข้อมูลที่เกี่ยวข้องไปด้วย: ${parts.join(" · ")}</div>` : "";
   openModal(`
     <div class="modal-head"><h3>ลบของ?</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">ต้องการลบ <b>${escapeHtml(p.name)}</b> ออกจากรายการใช่ไหม?</div>
+    <div class="modal-body">ต้องการลบ <b>${escapeHtml(p.name)}</b> ออกจากรายการใช่ไหม?${warn}</div>
     <div class="modal-foot">
       <button class="btn" onclick="closeModal()">ยกเลิก</button>
       <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmDeleteProduct('${id}')">ลบเลย</button>
@@ -690,6 +696,14 @@ function deleteProduct(id){
 }
 function confirmDeleteProduct(id){
   state.products = state.products.filter(p=>p.id!==id);
+  state.movements = state.movements.filter(m=>m.productId!==id);            // ลบประวัติที่เกี่ยวข้อง
+  state.productionRuns = state.productionRuns.filter(r=>r.productOutId!==id); // ลบงานผลิตที่ผลิตของนี้
+  state.products.forEach(x=>{ if(x.recipe){                                  // เคลียร์อ้างอิงในสูตร
+    if(x.recipe.contentId===id) x.recipe.contentId=null;
+    if(x.recipe.packagingId===id) x.recipe.packagingId=null;
+  }});
+  state.purchaseOrders.forEach(po=>{ po.items = po.items.filter(it=>it.productId!==id); }); // เอาออกจากใบสั่ง
+  state.purchaseOrders = state.purchaseOrders.filter(po=>po.items.length>0);                // ลบใบสั่งที่ว่างเปล่า
   save(); closeModal(); toast("ลบของแล้ว"); go("products");
 }
 function doExportProducts(){
@@ -769,11 +783,15 @@ function saveLocation(id){
 }
 function deleteLocation(id){
   const l = locationById(id); if(!l) return;
-  const hasMove = state.movements.some(m=>m.locationId===id);
-  if(hasMove){ toast("ลบไม่ได้ — ที่นี้มีประวัติการเคลื่อนไหวแล้ว", true); return; }
+  const moveCount = state.movements.filter(m=>m.locationId===id).length;
+  const runCount = state.productionRuns.filter(r=>r.factoryId===id).length;
+  const parts=[];
+  if(moveCount) parts.push(`ประวัติการเคลื่อนไหว ${fmt(moveCount)} รายการ`);
+  if(runCount) parts.push(`งานผลิต ${fmt(runCount)} รายการ`);
+  const warn = parts.length? `<div class="hint" style="margin-top:8px;color:var(--danger)">⚠️ จะลบข้อมูลที่เกี่ยวข้องไปด้วย: ${parts.join(" · ")}</div>` : "";
   openModal(`
     <div class="modal-head"><h3>ลบที่เก็บ?</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">ต้องการลบ <b>${escapeHtml(l.name)}</b> ใช่ไหม?</div>
+    <div class="modal-body">ต้องการลบ <b>${escapeHtml(l.name)}</b> ใช่ไหม?${warn}</div>
     <div class="modal-foot">
       <button class="btn" onclick="closeModal()">ยกเลิก</button>
       <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmDeleteLocation('${id}')">ลบเลย</button>
@@ -781,6 +799,9 @@ function deleteLocation(id){
 }
 function confirmDeleteLocation(id){
   state.locations = state.locations.filter(l=>l.id!==id);
+  state.movements = state.movements.filter(m=>m.locationId!==id);            // ลบประวัติที่ที่นี้
+  state.productionRuns = state.productionRuns.filter(r=>r.factoryId!==id);   // ลบงานผลิตที่โรงงานนี้
+  state.purchaseOrders.forEach(po=>{ if(po.receivedLocationId===id) po.receivedLocationId=null; });
   save(); closeModal(); toast("ลบที่แล้ว"); go("locations");
 }
 function doExportMatrix(){
