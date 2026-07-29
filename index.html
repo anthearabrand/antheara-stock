@@ -729,10 +729,11 @@ function renderLocations(el){
         <div class="tools"><button class="btn btn-primary btn-sm" onclick="editLocation()">+ เพิ่มที่</button></div>
       </div>
       <div class="panel-body">
-        <table><thead><tr><th>ชื่อที่</th><th>ประเภท</th><th class="r">มูลค่าของที่นี่</th><th></th></tr></thead><tbody>
+        <table><thead><tr><th>ชื่อที่</th><th>ประเภท</th><th class="r">คงเหลือ</th><th class="r">มูลค่าของที่นี่</th><th></th></tr></thead><tbody>
           ${locs.map(l=>`<tr>
             <td><b>${escapeHtml(l.name)}</b></td>
             <td><span class="chip ${l.kind==='โรงงาน'?'c-blue':'c-gray'}">${l.kind}</span></td>
+            <td class="r">${locationQtySummary(l.id)}</td>
             <td class="r muted">${baht(locationValue(l.id))}</td>
             <td class="r"><div class="row-actions">
               <button class="icon-btn" title="แก้ไข" onclick="editLocation('${l.id}')">✏️</button>
@@ -753,6 +754,13 @@ function renderLocations(el){
 }
 function locationValue(locId){
   return state.products.reduce((s,p)=> s + balanceOf(p.id,locId)*(p.cost||0), 0);
+}
+// สรุปจำนวนคงเหลือของที่หนึ่ง แยกตามหน่วย (หน่วยต่างกันบวกรวมกันไม่ได้)
+function locationQtySummary(locId){
+  const byUnit = {};
+  state.products.forEach(p=>{ const b=balanceOf(p.id,locId); if(b>0){ byUnit[p.unit]=(byUnit[p.unit]||0)+b; } });
+  const parts = Object.keys(byUnit).map(u=>`<span class="qty">${fmt(byUnit[u])}</span> <span class="muted">${escapeHtml(u)}</span>`);
+  return parts.length? parts.join(" · ") : `<span class="muted">—</span>`;
 }
 function editLocation(id){
   const l = id? locationById(id) : null;
