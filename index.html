@@ -268,19 +268,30 @@ async function boot(){
   const view = document.getElementById("view");
   view.innerHTML = `<div class="placeholder"><div class="big">🌿</div><h3>กำลังเชื่อมต่อ Supabase…</h3><p>โหลดข้อมูลล่าสุดของ ANTHEARA</p></div>`;
   setSync("กำลังโหลด…","saving");
+  // อ่านข้อมูลในเครื่อง (แคช) ไว้ก่อน
+  let localData=null;
+  try{ const raw=localStorage.getItem(KEY); if(raw) localData=normalize(JSON.parse(raw)); }catch(e){}
+  const localHasData = localData && ((localData.products&&localData.products.length) || (localData.movements&&localData.movements.length));
+
   let loaded=false;
   if(sb){
     try{
       const { data, error } = await sb.rpc("rpc_stock_load");
       if(error) throw error;
-      if(data && (data.products || data.locations)){ state = normalize(data); loaded=true; setSync("เชื่อมต่อแล้ว ✓","ok"); }
-      else { state = seed(); await sb.rpc("rpc_stock_save", { p_data: state }); loaded=true; setSync("เริ่มข้อมูลใหม่บนคลาวด์ ✓","ok"); }
+      const cloudHasData = data && ((data.products&&data.products.length) || (data.locations&&data.locations.length));
+      if(cloudHasData){
+        state = normalize(data); loaded=true; setSync("เชื่อมต่อแล้ว ✓","ok");
+      }else{
+        // คลาวด์ยังว่าง — ถ้ามีข้อมูลในเครื่องอยู่แล้ว อัปขึ้นคลาวด์ (ไม่ทับด้วยตัวอย่าง)
+        state = localHasData ? localData : seed();
+        await sb.rpc("rpc_stock_save", { p_data: state });
+        loaded=true; setSync(localHasData?"อัปข้อมูลขึ้นคลาวด์แล้ว ✓":"เริ่มข้อมูลใหม่บนคลาวด์ ✓","ok");
+      }
     }catch(e){ console.warn("เชื่อมต่อ Supabase ไม่ได้", e); }
   }
   if(!loaded){
-    // fallback: แคชในเครื่อง หรือ seed
-    try{ const raw=localStorage.getItem(KEY); if(raw){ state=normalize(JSON.parse(raw)); } else { state=seed(); } }
-    catch(e){ state=seed(); }
+    // fallback ออฟไลน์: ใช้แคชในเครื่อง หรือ seed
+    state = localHasData ? localData : seed();
     setSync("ออฟไลน์ — ใช้ข้อมูลในเครื่อง","err");
   }
   cacheLocal();
