@@ -192,9 +192,9 @@
    ข้อมูลเก็บบน Supabase (sync ทุกเครื่อง) + แคช localStorage กันออฟไลน์
    ========================================================= */
 const KEY = "antheara_stock";
-// ใช้ Supabase โปรเจกต์เดียวกับ Antheara Live Ops (anon key เปิดเผยได้ปกติ)
-const SUPABASE_URL = "https://dlxszrpiwomjfniqbnpe.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRseHN6cnBpd29tamZuaXFibnBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NDgzMTcsImV4cCI6MjA5OTMyNDMxN30.INpHHMeERE5U_0y28zjF9o7LC2NS70IaIbK98-XB5n8";
+// Supabase โปรเจกต์ "anther" (ref: hddwywofpqqlufslshaq) — anon key เปิดเผยได้ปกติ (ป้องกันด้วย RLS+RPC)
+const SUPABASE_URL = "https://hddwywofpqqlufslshaq.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkZHd5d29mcHFxbHVmc2xzaGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTMwNTQsImV4cCI6MjEwMDg4OTA1NH0.MqxmX9uv78NkVw7c-E9hZfONt19yW3HX1-XpOv_4AMw";
 const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 /* ---------- seed data (ตัวอย่างเริ่มต้น) ---------- */
