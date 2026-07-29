@@ -164,8 +164,9 @@
       <a data-route="history"><span class="ic">📜</span> ประวัติการเคลื่อนไหว</a>
     </nav>
     <div class="sb-foot">
-      <div id="syncStatus" class="sync">กำลังเริ่มระบบ…</div>
-      <button class="btn btn-sm" style="width:100%;margin-top:10px;justify-content:center" onclick="resetData()">🗑️ เริ่มข้อมูลใหม่</button>
+      <div id="syncStatus" class="sync" title="">กำลังเริ่มระบบ…</div>
+      <button class="btn btn-sm" style="width:100%;margin-top:10px;justify-content:center" onclick="zeroAll()">0️⃣ ตั้งยอดเป็น 0</button>
+      <button class="btn btn-sm" style="width:100%;margin-top:7px;justify-content:center" onclick="resetData()">🗑️ เริ่มข้อมูลใหม่</button>
     </div>
   </aside>
   <div class="backdrop" id="backdrop"></div>
@@ -287,12 +288,19 @@ async function boot(){
         await sb.rpc("rpc_stock_save", { p_data: state });
         loaded=true; setSync(localHasData?"อัปข้อมูลขึ้นคลาวด์แล้ว ✓":"เริ่มข้อมูลใหม่บนคลาวด์ ✓","ok");
       }
-    }catch(e){ console.warn("เชื่อมต่อ Supabase ไม่ได้", e); }
-  }
+    }catch(e){ console.warn("เชื่อมต่อ Supabase ไม่ได้", e); window._connErr = e; }
+  }else{ window._connErr = new Error("supabase-js ไม่โหลด (sb=null)"); }
   if(!loaded){
     // fallback ออฟไลน์: ใช้แคชในเครื่อง หรือ seed
     state = localHasData ? localData : seed();
-    setSync("ออฟไลน์ — ใช้ข้อมูลในเครื่อง","err");
+    const em = ((window._connErr && (window._connErr.message||window._connErr.code)) || "") + "";
+    let why = "";
+    if(/fetch|networkerror|failed to fetch/i.test(em)) why = " (ต่อเน็ตไม่ได้)";
+    else if(/PGRST202|find the function|does not exist|schema cache|function/i.test(em)) why = " (ยังไม่พบฟังก์ชัน—รัน SQL?)";
+    else if(/jwt|apikey|invalid|401|permission|denied/i.test(em)) why = " (คีย์/สิทธิ์ผิด)";
+    else if(/sb=null|ไม่โหลด/i.test(em)) why = " (โหลดตัวเชื่อมไม่ได้)";
+    const el = document.getElementById("syncStatus"); if(el) el.title = em || "ไม่ทราบสาเหตุ";
+    setSync("ออฟไลน์"+why,"err");
   }
   cacheLocal();
   go("dashboard");
@@ -308,6 +316,24 @@ function resetData(){
 function confirmReset(){
   state = seed(); save();
   closeModal(); toast("เริ่มข้อมูลใหม่แล้ว"); go("dashboard");
+}
+// ตั้งยอดคงเหลือเป็น 0 ทั้งหมด — ล้างการเคลื่อนไหว/ใบสั่ง/งานผลิต แต่เก็บรายการของ+สูตร+ที่เก็บ
+function zeroAll(){
+  openModal(`
+    <div class="modal-head"><h3>ตั้งยอดเป็น 0 ทั้งหมด?</h3><button class="x" onclick="closeModal()">×</button></div>
+    <div class="modal-body">
+      ล้าง <b>ประวัติการเคลื่อนไหว · ใบสั่ง · งานผลิต</b> ทั้งหมด → คงเหลือทุกอย่างกลับเป็น <b>0</b>
+      <div class="hint" style="margin-top:8px">✓ เก็บ <b>รายการของ · สูตรผลิต · ที่เก็บ</b> ไว้เหมือนเดิม (เหมาะกับเริ่มนับสต๊อกจริงใหม่)</div>
+      <div class="hint" style="margin-top:6px;color:var(--danger)">⚠️ ประวัติที่ล้างแล้วเอากลับไม่ได้ — ออก CSV เก็บก่อนถ้าต้องการ</div>
+    </div>
+    <div class="modal-foot"><button class="btn" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmZeroAll()">ตั้งเป็น 0</button></div>`);
+}
+function confirmZeroAll(){
+  state.movements = [];
+  state.purchaseOrders = [];
+  state.productionRuns = [];
+  save(); closeModal(); toast("ตั้งยอดเป็น 0 ทั้งหมดแล้ว"); go("dashboard");
 }
 
 /* ---------- id helper ---------- */
