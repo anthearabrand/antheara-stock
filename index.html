@@ -40,6 +40,12 @@
   .sb-foot{padding:14px 18px;border-top:1px solid rgba(236,228,209,.14);font-size:11.5px;color:rgba(236,228,209,.55)}
   .sb-foot .btn{background:transparent;border-color:rgba(236,228,209,.28);color:rgba(236,228,209,.85)}
   .sb-foot .btn:hover{background:rgba(236,228,209,.1);border-color:rgba(236,228,209,.45);color:var(--cream)}
+  .sync{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:500;color:rgba(236,228,209,.6)}
+  .sync::before{content:"";width:7px;height:7px;border-radius:50%;background:rgba(236,228,209,.4);flex:none}
+  .sync.ok::before{background:#7fbf6a} .sync.ok{color:rgba(236,228,209,.75)}
+  .sync.saving::before{background:#e0b24a;animation:pulse 1s infinite}
+  .sync.err::before{background:#d98d6a} .sync.err{color:#e6b79c}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
   .main{flex:1;margin-left:var(--sidebar-w);display:flex;flex-direction:column;min-width:0}
   .topbar{height:var(--topbar-h);background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 22px;position:sticky;top:0;z-index:30}
@@ -158,7 +164,7 @@
       <a data-route="history"><span class="ic">📜</span> ประวัติการเคลื่อนไหว</a>
     </nav>
     <div class="sb-foot">
-      ข้อมูลเก็บในเครื่องนี้ · ปิด-เปิดไม่หาย
+      <div id="syncStatus" class="sync">กำลังเริ่มระบบ…</div>
       <button class="btn btn-sm" style="width:100%;margin-top:10px;justify-content:center" onclick="resetData()">🗑️ เริ่มข้อมูลใหม่</button>
     </div>
   </aside>
@@ -177,13 +183,18 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
 /* =========================================================
-   ANTHEARA Stock & Production — core (TASK 2)
-   ข้อมูลเก็บใน localStorage คีย์เดียว "antheara_stock"
+   ANTHEARA Stock & Production — core
+   ข้อมูลเก็บบน Supabase (sync ทุกเครื่อง) + แคช localStorage กันออฟไลน์
    ========================================================= */
 const KEY = "antheara_stock";
+// ใช้ Supabase โปรเจกต์เดียวกับ Antheara Live Ops (anon key เปิดเผยได้ปกติ)
+const SUPABASE_URL = "https://dlxszrpiwomjfniqbnpe.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRseHN6cnBpd29tamZuaXFibnBlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODM3NDgzMTcsImV4cCI6MjA5OTMyNDMxN30.INpHHMeERE5U_0y28zjF9o7LC2NS70IaIbK98-XB5n8";
+const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
 /* ---------- seed data (ตัวอย่างเริ่มต้น) ---------- */
 function seed(){
@@ -211,23 +222,70 @@ function seed(){
   };
 }
 
-/* ---------- load / save ---------- */
-let state = load();
-function load(){
-  try{
-    const raw = localStorage.getItem(KEY);
-    if(raw){ const s = JSON.parse(raw); return normalize(s); }
-  }catch(e){ console.warn("โหลดข้อมูลไม่ได้ ใช้ค่าเริ่มต้น", e); }
-  const s = seed(); persist(s); return s;
-}
+/* ---------- state + Supabase sync ---------- */
+let state = { locations:[], products:[], movements:[], purchaseOrders:[], productionRuns:[] };
 function normalize(s){
+  s = s||{};
   s.locations = s.locations||[]; s.products = s.products||[];
   s.movements = s.movements||[]; s.purchaseOrders = s.purchaseOrders||[];
   s.productionRuns = s.productionRuns||[];
   return s;
 }
-function persist(s){ localStorage.setItem(KEY, JSON.stringify(s||state)); }
-function save(){ persist(state); }
+function cacheLocal(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+
+/* ตัวบอกสถานะซิงก์ (มุมล่างแถบข้าง) */
+function setSync(txt, cls){
+  const el = document.getElementById("syncStatus");
+  if(el){ el.textContent = txt; el.className = "sync " + (cls||""); }
+}
+
+/* บันทึกขึ้น Supabase (หน่วงรวบ 600ms) + แคชในเครื่องเสมอ */
+let _saveTimer=null, _saveBusy=false, _saveAgain=false;
+function save(){
+  cacheLocal();
+  setSync("กำลังบันทึก…","saving");
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(cloudSave, 600);
+}
+async function cloudSave(){
+  if(!sb){ setSync("ออฟไลน์ (เก็บในเครื่อง)","err"); return; }
+  if(_saveBusy){ _saveAgain=true; return; }
+  _saveBusy=true;
+  try{
+    const { error } = await sb.rpc("rpc_stock_save", { p_data: state });
+    if(error) throw error;
+    setSync("บันทึกแล้ว ✓","ok");
+  }catch(e){
+    console.warn("บันทึกขึ้น Supabase ไม่ได้", e);
+    setSync("ออฟไลน์ (เก็บในเครื่อง)","err");
+  }
+  _saveBusy=false;
+  if(_saveAgain){ _saveAgain=false; cloudSave(); }
+}
+
+/* โหลด state ตอนเปิดแอป: จาก Supabase ก่อน ถ้าไม่ได้ใช้แคชในเครื่อง */
+async function boot(){
+  const view = document.getElementById("view");
+  view.innerHTML = `<div class="placeholder"><div class="big">🌿</div><h3>กำลังเชื่อมต่อ Supabase…</h3><p>โหลดข้อมูลล่าสุดของ ANTHEARA</p></div>`;
+  setSync("กำลังโหลด…","saving");
+  let loaded=false;
+  if(sb){
+    try{
+      const { data, error } = await sb.rpc("rpc_stock_load");
+      if(error) throw error;
+      if(data && (data.products || data.locations)){ state = normalize(data); loaded=true; setSync("เชื่อมต่อแล้ว ✓","ok"); }
+      else { state = seed(); await sb.rpc("rpc_stock_save", { p_data: state }); loaded=true; setSync("เริ่มข้อมูลใหม่บนคลาวด์ ✓","ok"); }
+    }catch(e){ console.warn("เชื่อมต่อ Supabase ไม่ได้", e); }
+  }
+  if(!loaded){
+    // fallback: แคชในเครื่อง หรือ seed
+    try{ const raw=localStorage.getItem(KEY); if(raw){ state=normalize(JSON.parse(raw)); } else { state=seed(); } }
+    catch(e){ state=seed(); }
+    setSync("ออฟไลน์ — ใช้ข้อมูลในเครื่อง","err");
+  }
+  cacheLocal();
+  go("dashboard");
+}
 function resetData(){
   openModal(`
     <div class="modal-head"><h3>เริ่มข้อมูลใหม่?</h3><button class="x" onclick="closeModal()">×</button></div>
@@ -237,7 +295,7 @@ function resetData(){
       <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmReset()">ล้างแล้วเริ่มใหม่</button></div>`);
 }
 function confirmReset(){
-  state = seed(); persist(state);
+  state = seed(); save();
   closeModal(); toast("เริ่มข้อมูลใหม่แล้ว"); go("dashboard");
 }
 
@@ -1367,7 +1425,7 @@ document.getElementById("nav").addEventListener("click", e=>{
 document.getElementById("burger").addEventListener("click", openSidebar);
 document.getElementById("backdrop").addEventListener("click", closeSidebar);
 
-go("dashboard");
+boot();
 </script>
 </body>
 </html>
