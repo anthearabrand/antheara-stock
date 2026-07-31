@@ -13,34 +13,54 @@
     --accent:#9a6238; --accent-soft:#f4ece0; --dark:#3d2419; --cream:#ece4d1;
     --ok:#4a7a43; --warn:#bd7a2c; --danger:#b23f2e;
     --ok-soft:#e8f0e2; --warn-soft:#f7ead4; --danger-soft:#f6e3de;
-    --radius:16px; --shadow:0 4px 20px rgba(61,36,25,.07);
+    --radius:15px; --shadow:0 4px 20px rgba(61,36,25,.07);
+    --sw:230px; --th:60px;
   }
-  *{box-sizing:border-box;margin:0;padding:0}
+  *{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
   body{font-family:"Prompt",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
   button,input,select{font-family:"Prompt";font-size:15px}button{cursor:pointer}
 
-  .top{background:var(--dark);color:var(--cream);padding:16px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
-  .top .brand{font-family:"Cormorant Garamond",serif;font-weight:700;font-size:26px;line-height:1}
-  .top .brand small{font-family:"Prompt";font-weight:500;font-size:10px;letter-spacing:.14em;display:block;color:rgba(236,228,209,.6);margin-top:2px}
-  .sync{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:rgba(236,228,209,.7)}
-  .sync::before{content:"";width:8px;height:8px;border-radius:50%;background:rgba(236,228,209,.4)}
-  .sync.ok::before{background:#7fbf6a}.sync.ok{color:rgba(236,228,209,.85)}
+  .app{display:flex;min-height:100vh}
+  .sidebar{width:var(--sw);background:var(--dark);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:40;transition:transform .22s}
+  .brand{padding:22px 20px 18px;border-bottom:1px solid rgba(236,228,209,.14)}
+  .brand .wm{font-family:"Cormorant Garamond",serif;font-weight:700;font-size:30px;line-height:1;color:var(--cream)}
+  .brand .sub{font-weight:500;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:rgba(236,228,209,.55);margin-top:6px}
+  .nav{padding:14px 12px;overflow-y:auto;flex:1}
+  .nav a{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:11px;color:rgba(236,228,209,.72);font-weight:500;font-size:14.5px;margin-bottom:3px;transition:.12s}
+  .nav a .ic{font-size:18px;width:22px;text-align:center}
+  .nav a:hover{background:rgba(236,228,209,.08);color:var(--cream)}
+  .nav a.active{background:rgba(236,228,209,.15);color:var(--cream);font-weight:600}
+  .nav a .dot{margin-left:auto;background:var(--danger);color:#fff;font-size:11px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 5px}
+  .nav a .dot.show{display:inline-flex}
+  .sb-foot{padding:14px 18px;border-top:1px solid rgba(236,228,209,.14)}
+  .sync{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:500;color:rgba(236,228,209,.6)}
+  .sync::before{content:"";width:7px;height:7px;border-radius:50%;background:rgba(236,228,209,.4);flex:none}
+  .sync.ok::before{background:#7fbf6a}.sync.ok{color:rgba(236,228,209,.75)}
   .sync.saving::before{background:#e0b24a;animation:pulse 1s infinite}
-  .sync.err::before{background:#d98d6a}.sync.err{color:#eab79c}
+  .sync.err::before{background:#d98d6a}.sync.err{color:#e6b79c}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-  .wrap{max-width:1000px;margin:0 auto;padding:18px 16px 70px}
+  .main{flex:1;margin-left:var(--sw);display:flex;flex-direction:column;min-width:0}
+  .topbar{height:var(--th);background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 22px;position:sticky;top:0;z-index:30}
+  .topbar .burger{display:none;background:none;border:0;font-size:22px;color:var(--ink)}
+  .topbar h1{font-size:19px;font-weight:700}
+  .topbar .alert{margin-left:auto;font-size:13px;font-weight:600;color:var(--warn);background:var(--warn-soft);padding:7px 13px;border-radius:999px;display:none}
+  .topbar .alert.show{display:block}
+  .content{padding:22px;max-width:1000px;width:100%}
+  .backdrop{display:none;position:fixed;inset:0;background:rgba(61,36,25,.4);z-index:35}.backdrop.show{display:block}
 
-  .alert{background:var(--warn-soft);color:#7a4d12;border:1px solid #ecd3a6;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-weight:600;font-size:14px;display:none}
-  .alert.show{display:block}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+  .kcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:17px}
+  .kcard .k{font-size:13px;color:var(--ink2);font-weight:500}
+  .kcard .v{font-size:25px;font-weight:700;margin-top:3px}
+  .kcard.warn .v{color:var(--warn)}.kcard.danger .v{color:var(--danger)}
 
   .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px}
   .ph{display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid var(--line);flex-wrap:wrap}
-  .ph h2{font-size:17px;font-weight:700}
-  .ph .sub{font-size:12px;color:var(--ink2);font-weight:400;margin-left:2px}
+  .ph h2{font-size:16px;font-weight:700}.ph .sub{font-size:12px;color:var(--ink2);font-weight:400}
   .ph .tools{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
   .scroll{overflow-x:auto}
-  table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:560px}
+  table{width:100%;border-collapse:collapse;font-size:14.5px;min-width:520px}
   thead th{text-align:left;font-size:12px;color:var(--ink2);font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:#fdfbf8}
   thead th.r{text-align:right}
   tbody td{padding:8px 12px;border-bottom:1px solid #f4ece2;vertical-align:middle}
@@ -48,13 +68,13 @@
   .cell{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);text-align:right;font-weight:600}
   .cell.name{text-align:left}
   .cell:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-  td.num{width:110px}td.namecol{min-width:150px}td.small{width:90px}
+  td.num{width:110px}td.namecol{min-width:150px}td.small{width:88px}
   .chip{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap}
   .c-ok{background:var(--ok-soft);color:var(--ok)}.c-warn{background:var(--warn-soft);color:var(--warn)}.c-danger{background:var(--danger-soft);color:var(--danger)}
+  .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
   .money{text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
   .icon-btn{background:none;border:0;font-size:16px;padding:6px 7px;border-radius:8px;color:var(--ink2)}
-  .icon-btn:hover{background:#f4ece2;color:var(--danger)}
-  .icon-btn.in:hover{background:var(--ok-soft);color:var(--ok)}
+  .icon-btn:hover{background:#f4ece2;color:var(--danger)}.icon-btn.in:hover{background:var(--ok-soft);color:var(--ok)}
   .foot-row td{padding:12px;font-weight:700;background:#fdfbf8;border-top:2px solid var(--line)}
   .empty{padding:26px 18px;text-align:center;color:var(--ink2)}
 
@@ -62,92 +82,56 @@
   .btn:hover{border-color:#d8c9b6;background:#fdfbf8}
   .btn-primary{background:var(--dark);color:var(--cream);border-color:var(--dark)}
   .btn-primary:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-  .btn-sm{padding:8px 13px;font-size:13px}
-  .btn-lg{padding:15px 26px;font-size:16px;border-radius:13px}
+  .btn-sm{padding:8px 13px;font-size:13px}.btn-lg{padding:16px 30px;font-size:17px;border-radius:13px}
+  .produce-hero{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px 20px;text-align:center;margin-bottom:18px}
+  .produce-hero .h{font-size:17px;font-weight:700;margin-bottom:4px}
+  .produce-hero .flowhint{color:var(--ink2);font-size:13px;margin-top:10px}
 
-  .produce-bar{text-align:center;margin:2px 0 18px}
-  .flowhint{color:var(--ink2);font-size:13px;margin-top:8px}
-
-  /* modal */
   .modal-bg{display:none;position:fixed;inset:0;background:rgba(61,36,25,.5);z-index:60;align-items:flex-start;justify-content:center;padding:34px 14px;overflow-y:auto}
   .modal-bg.show{display:flex}
-  .modal{background:#fff;border-radius:18px;box-shadow:0 24px 70px rgba(61,36,25,.3);width:100%;max-width:480px;overflow:hidden;animation:pop .16s ease}
+  .modal{background:#fff;border-radius:18px;box-shadow:0 24px 70px rgba(61,36,25,.3);width:100%;max-width:480px;overflow:hidden;animation:pop .16s}
   @keyframes pop{from{transform:translateY(8px);opacity:.6}to{transform:none;opacity:1}}
-  .mh{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
-  .mh h3{font-size:18px;font-weight:700}.mh .x{margin-left:auto;background:none;border:0;font-size:22px;color:var(--ink2)}
-  .mb{padding:18px 20px}
-  .mf{display:flex;gap:10px;padding:14px 20px;border-top:1px solid var(--line);background:#fdfbf8}.mf .btn{flex:1;justify-content:center}
-  .field{margin-bottom:13px}.field:last-child{margin-bottom:0}
-  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+  .mh{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}.mh h3{font-size:18px;font-weight:700}.mh .x{margin-left:auto;background:none;border:0;font-size:22px;color:var(--ink2)}
+  .mb{padding:18px 20px}.mf{display:flex;gap:10px;padding:14px 20px;border-top:1px solid var(--line);background:#fdfbf8}.mf .btn{flex:1;justify-content:center}
+  .field{margin-bottom:13px}.field:last-child{margin-bottom:0}.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
   .field input,.field select{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink)}
   .field input:focus,.field select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .frow{display:grid;grid-template-columns:1fr 1fr;gap:11px}
   .userow{display:grid;grid-template-columns:1fr 78px 30px;gap:8px;align-items:center;margin-bottom:8px}
   .userow select,.userow input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px}
-  .prev{background:#f6f2ec;border-radius:11px;padding:12px 14px;margin-top:10px;font-size:13.5px;line-height:1.7}
-  .prev b{font-weight:700}.bad{color:var(--danger);font-weight:700}
+  .prev{background:#f6f2ec;border-radius:11px;padding:12px 14px;margin-top:10px;font-size:13.5px;line-height:1.7}.prev b{font-weight:700}.bad{color:var(--danger);font-weight:700}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--dark);color:var(--cream);padding:12px 20px;border-radius:12px;font-weight:600;font-size:14px;z-index:80;box-shadow:0 12px 34px rgba(0,0,0,.25);opacity:0;transition:.2s;pointer-events:none}
   .toast.show{opacity:1;bottom:34px}.toast.err{background:var(--danger);color:#fff}
+
+  @media(max-width:820px){.cards{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:760px){
+    .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+    .main{margin-left:0}.topbar .burger{display:block}
+  }
 </style>
 </head>
 <body>
-<div class="top">
-  <div class="brand">Anthēara<small>สต๊อกการผลิต</small></div>
-  <div id="sync" class="sync">กำลังโหลด…</div>
-</div>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><div class="wm">Anthēara</div><div class="sub">สต๊อกการผลิต</div></div>
+    <nav class="nav" id="nav">
+      <a data-r="dash"><span class="ic">📊</span> แดชบอร์ด<span class="dot" id="navDot"></span></a>
+      <a data-r="mats"><span class="ic">🧪</span> วัตถุดิบ</a>
+      <a data-r="produce"><span class="ic">🏭</span> สั่งผลิต</a>
+      <a data-r="fin"><span class="ic">📦</span> สินค้าสำเร็จรูป</a>
+      <a data-r="pays"><span class="ic">💰</span> เงินที่สั่ง</a>
+    </nav>
+    <div class="sb-foot"><div id="sync" class="sync">กำลังโหลด…</div></div>
+  </aside>
+  <div class="backdrop" id="backdrop"></div>
 
-<div class="wrap">
-  <div class="alert" id="alert"></div>
-
-  <!-- วัตถุดิบ -->
-  <div class="panel">
-    <div class="ph">
-      <h2>🧪 วัตถุดิบที่โรงงาน <span class="sub">เนื้อ · กระปุก · ฉลาก</span></h2>
-      <div class="tools">
-        <button class="btn btn-sm" onclick="exportMats()">⬇︎ CSV</button>
-        <button class="btn btn-primary btn-sm" onclick="addMat()">+ เพิ่มวัตถุดิบ</button>
-      </div>
-    </div>
-    <div class="scroll"><table>
-      <thead><tr><th>วัตถุดิบ</th><th>โรงงาน</th><th class="r">คงเหลือ</th><th>หน่วย</th><th class="r">เตือนเมื่อ≤</th><th>สถานะ</th><th></th></tr></thead>
-      <tbody id="matsBody"></tbody>
-    </table></div>
-  </div>
-
-  <!-- สั่งผลิต -->
-  <div class="produce-bar">
-    <button class="btn btn-primary btn-lg" onclick="openProduce()">🏭 สั่งผลิต</button>
-    <div class="flowhint">พิมพ์ว่าผลิตอะไร กี่ชิ้น ใช้วัตถุดิบเท่าไหร่ → ระบบหักวัตถุดิบ + เพิ่มสินค้าสำเร็จรูปให้เอง</div>
-  </div>
-
-  <!-- สินค้าสำเร็จรูป -->
-  <div class="panel">
-    <div class="ph">
-      <h2>📦 สินค้าสำเร็จรูปคงเหลือ</h2>
-      <div class="tools">
-        <button class="btn btn-sm" onclick="exportFin()">⬇︎ CSV</button>
-        <button class="btn btn-sm" onclick="addFin()">+ เพิ่มสินค้า</button>
-      </div>
-    </div>
-    <div class="scroll"><table>
-      <thead><tr><th>สินค้า</th><th class="r">คงเหลือ</th><th>หน่วย</th><th class="r">เตือนเมื่อ≤</th><th>สถานะ</th><th></th></tr></thead>
-      <tbody id="finBody"></tbody>
-    </table></div>
-  </div>
-
-  <!-- เงินที่สั่ง -->
-  <div class="panel">
-    <div class="ph">
-      <h2>💰 เงินที่สั่งแต่ละรอบ</h2>
-      <div class="tools">
-        <button class="btn btn-sm" onclick="exportPays()">⬇︎ CSV</button>
-        <button class="btn btn-primary btn-sm" onclick="addPay()">+ เพิ่มรายการเงิน</button>
-      </div>
-    </div>
-    <div class="scroll"><table>
-      <thead><tr><th style="width:150px">วันที่</th><th>รายการ / รอบ</th><th class="r" style="width:150px">จำนวนเงิน (บาท)</th><th></th></tr></thead>
-      <tbody id="paysBody"></tbody>
-    </table></div>
+  <div class="main">
+    <header class="topbar">
+      <button class="burger" id="burger">☰</button>
+      <h1 id="pageTitle">แดชบอร์ด</h1>
+      <div class="alert" id="topAlert"></div>
+    </header>
+    <main class="content" id="view"></main>
   </div>
 </div>
 
@@ -159,18 +143,18 @@
 "use strict";
 const KEY="antheara_stock";
 const SUPABASE_URL="https://hddwywofpqqlufslshaq.supabase.co";
-const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkZHd5d29mcHFxbHVmc2xzaGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTMwNTQsImV4cCI6MjEwMDg4OTA1NH0.MqxmX9uv78NkVw7c-E9hZfONt19yW3HX1-XpOv_4AMw";
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ 9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkZHd5d29mcHFxbHVmc2xzaGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTMwNTQsImV4cCI6MjEwMDg4OTA1NH0.MqxmX9uv78NkVw7c-E9hZfONt19yW3HX1-XpOv_4AMw".replace(/\s/g,'');
 const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
 
-let state={materials:[],finished:[],recipes:{},payments:[],_v:4};
+let state={materials:[],finished:[],recipes:{},productions:[],payments:[],_v:5};
 
 function migrate(s){
-  if(!s||typeof s!=="object") return {materials:[],finished:[],recipes:{},payments:[],_v:4};
-  if(s._v===4){ s.materials=s.materials||[];s.finished=s.finished||[];s.recipes=s.recipes||{};s.payments=s.payments||[]; return s; }
+  if(!s||typeof s!=="object") return {materials:[],finished:[],recipes:{},productions:[],payments:[],_v:5};
+  if(s._v===5||s._v===4){ s.materials=s.materials||[];s.finished=s.finished||[];s.recipes=s.recipes||{};s.productions=s.productions||[];s.payments=s.payments||[];s._v=5; return s; }
   const materials=Array.isArray(s.materials)?s.materials.map(m=>({id:m.id,name:m.name,plant:m.plant||'',qty:m.qty||0,unit:m.unit||'',reorder:m.reorder||0})):[];
   const payments=Array.isArray(s.payments)?s.payments:[];
-  const legacy=s._legacy||{rounds:s.rounds,products:s.products,items:s.items,movements:s.movements,locations:s.locations,productionRuns:s.productionRuns,purchaseOrders:s.purchaseOrders};
-  return {materials,finished:[],recipes:{},payments,_v:4,_legacy:legacy};
+  const legacy=s._legacy||{rounds:s.rounds,products:s.products,items:s.items,movements:s.movements,locations:s.locations};
+  return {materials,finished:[],recipes:{},productions:[],payments,_v:5,_legacy:legacy};
 }
 
 function setSync(t,c){const e=document.getElementById("sync");if(e){e.textContent=t;e.className="sync "+(c||"");}}
@@ -191,14 +175,14 @@ async function boot(){
   if(sb){
     try{
       const{data,error}=await sb.rpc("rpc_stock_load");if(error)throw error;
-      if(data&&(data._v===4||data.materials||data.rounds||data.products||data.items)){
+      if(data&&(data._v||data.materials||data.rounds||data.products||data.items)){
         state=migrate(data);loaded=true;setSync("เชื่อมต่อแล้ว ✓","ok");
-        if(data._v!==4) await sb.rpc("rpc_stock_save",{p_data:state});
+        if(data._v!==5) await sb.rpc("rpc_stock_save",{p_data:state});
       } else { state=ld?migrate(ld):migrate(null); await sb.rpc("rpc_stock_save",{p_data:state}); loaded=true; setSync("เชื่อมต่อแล้ว ✓","ok"); }
     }catch(e){console.warn("Supabase:",e);}
   }
   if(!loaded){state=ld?migrate(ld):migrate(null);setSync("ออฟไลน์ (เก็บในเครื่อง)","err");}
-  cacheLocal();render();
+  cacheLocal();go(current);
 }
 
 const uid=p=>p+Date.now().toString(36)+Math.floor(Math.random()*1000).toString(36);
@@ -207,82 +191,138 @@ const baht=n=>"฿"+Math.round(n||0).toLocaleString("th-TH");
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function stat(x){const q=x.qty||0;if(q<=0)return{k:"หมด",c:"c-danger"};if(q<=(x.reorder||0))return{k:"ใกล้หมด",c:"c-warn"};return{k:"พอ",c:"c-ok"};}
 const matById=id=>state.materials.find(m=>m.id===id);
+const finById=id=>state.finished.find(f=>f.id===id);
+const finByName=name=>{name=(name||'').trim();return state.finished.find(f=>(f.name||'').trim()===name);};
+const lowItems=()=>[...state.materials.map(m=>({...m,_t:'วัตถุดิบ'})),...state.finished.map(f=>({...f,_t:'สินค้า'}))].filter(x=>(x.name&&x.name.trim())&&(x.qty||0)<=(x.reorder||0)&&(x.reorder>0||x.qty<=0));
 
-/* ===== render ===== */
-function render(){
-  state.materials=state.materials||[];state.finished=state.finished||[];state.payments=state.payments||[];state.recipes=state.recipes||{};
+/* ===== ROUTER ===== */
+const ROUTES={dash:{t:"แดชบอร์ด",f:renderDash},mats:{t:"วัตถุดิบ",f:renderMats},produce:{t:"สั่งผลิต",f:renderProduce},fin:{t:"สินค้าสำเร็จรูป",f:renderFin},pays:{t:"เงินที่สั่ง",f:renderPays}};
+let current="dash";
+function go(r){
+  if(!ROUTES[r])r="dash";current=r;
+  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("active",a.dataset.r===r));
+  document.getElementById("pageTitle").textContent=ROUTES[r].t;
+  document.getElementById("view").innerHTML="";
+  ROUTES[r].f(document.getElementById("view"));
+  window.scrollTo(0,0);closeSidebar();refreshAlert();
+}
+function refreshAlert(){
+  const low=lowItems();const el=document.getElementById("topAlert");const dot=document.getElementById("navDot");
+  if(low.length){el.className="alert show";el.textContent="⚠️ ใกล้หมด "+low.length+" รายการ";dot.textContent=low.length;dot.classList.add("show");}
+  else{el.className="alert";dot.classList.remove("show");}
+}
+function matsTable(){
   const plants=[...new Set(state.materials.map(m=>m.plant).filter(Boolean))];
   const dlP=`<datalist id="plants">${plants.map(p=>`<option value="${esc(p)}">`).join("")}</datalist>`;
-
-  // แจ้งเตือนใกล้หมด
-  const lowM=state.materials.filter(m=>(m.qty||0)<=(m.reorder||0));
-  const lowF=state.finished.filter(f=>(f.qty||0)<=(f.reorder||0));
-  const al=document.getElementById("alert");
-  const names=[...lowM,...lowF].map(x=>esc(x.name)).filter(Boolean);
-  if(names.length){ al.className="alert show"; al.innerHTML="⚠️ ใกล้หมด/หมด "+names.length+" รายการ — "+names.slice(0,6).join(", ")+(names.length>6?" …":""); }
-  else al.className="alert";
-
-  // วัตถุดิบ
-  document.getElementById("matsBody").innerHTML = dlP + (state.materials.length? state.materials.map(m=>{const s=stat(m);return `<tr>
-    <td class="namecol"><input class="cell name" value="${esc(m.name)}" placeholder="เช่น เนื้อสครับ" oninput="mSet('${m.id}','name',this.value)"></td>
-    <td class="namecol"><input class="cell name" list="plants" value="${esc(m.plant)}" placeholder="โรงงาน" oninput="mSet('${m.id}','plant',this.value)"></td>
-    <td class="num"><input class="cell" type="number" step="any" value="${m.qty||''}" placeholder="0" oninput="mSet('${m.id}','qty',this.value)"></td>
-    <td class="small"><input class="cell name" value="${esc(m.unit)}" placeholder="โล/ใบ" oninput="mSet('${m.id}','unit',this.value)"></td>
-    <td class="small"><input class="cell" type="number" step="any" value="${m.reorder||''}" placeholder="0" oninput="mSet('${m.id}','reorder',this.value)"></td>
-    <td><span class="chip ${s.c}">${s.k}</span></td>
-    <td style="white-space:nowrap"><button class="icon-btn in" title="รับเข้าเพิ่ม" onclick="receiveMat('${m.id}')">📥</button><button class="icon-btn" title="ลบ" onclick="delMat('${m.id}')">🗑️</button></td>
-  </tr>`;}).join("") : `<tr><td colspan="7"><div class="empty">ยังไม่มีวัตถุดิบ — กด “+ เพิ่มวัตถุดิบ” แล้วใส่เนื้อ/กระปุกที่สั่งมา</div></td></tr>`);
-
-  // สินค้าสำเร็จรูป
-  document.getElementById("finBody").innerHTML = (state.finished.length? state.finished.map(f=>{const s=stat(f);return `<tr>
-    <td class="namecol"><input class="cell name" value="${esc(f.name)}" placeholder="ชื่อสินค้า" oninput="fSet('${f.id}','name',this.value)"></td>
-    <td class="num"><input class="cell" type="number" step="any" value="${f.qty||''}" placeholder="0" oninput="fSet('${f.id}','qty',this.value)"></td>
-    <td class="small"><input class="cell name" value="${esc(f.unit)}" placeholder="ชิ้น/กระปุก" oninput="fSet('${f.id}','unit',this.value)"></td>
-    <td class="small"><input class="cell" type="number" step="any" value="${f.reorder||''}" placeholder="0" oninput="fSet('${f.id}','reorder',this.value)"></td>
-    <td><span class="chip ${s.c}">${s.k}</span></td>
-    <td><button class="icon-btn" title="ลบ" onclick="delFin('${f.id}')">🗑️</button></td>
-  </tr>`;}).join("") : `<tr><td colspan="6"><div class="empty">ยังไม่มีสินค้าสำเร็จรูป — จะเพิ่มเองเมื่อกด “🏭 สั่งผลิต”</div></td></tr>`);
-
-  // เงิน
-  const total=state.payments.reduce((s,p)=>s+(p.amount||0),0);
-  document.getElementById("paysBody").innerHTML = (state.payments.length? state.payments.map(p=>`<tr>
-    <td style="width:150px"><input class="cell name" type="date" value="${p.date||''}" oninput="pSet('${p.id}','date',this.value)"></td>
-    <td><input class="cell name" value="${esc(p.note)}" placeholder="เช่น สั่งกระปุก AHA รอบ 1" oninput="pSet('${p.id}','note',this.value)"></td>
-    <td class="num" style="width:150px"><input class="cell" type="number" step="any" value="${p.amount||''}" placeholder="0" oninput="pSet('${p.id}','amount',this.value)"></td>
-    <td><button class="icon-btn" title="ลบ" onclick="delPay('${p.id}')">🗑️</button></td>
-  </tr>`).join("") : `<tr><td colspan="4"><div class="empty">ยังไม่มีรายการเงิน</div></td></tr>`)
-  + (state.payments.length?`<tr class="foot-row"><td colspan="2">รวมเงินที่สั่งทั้งหมด</td><td class="money">${baht(total)}</td><td></td></tr>`:"");
+  return `<div class="scroll"><table>
+    <thead><tr><th>วัตถุดิบ</th><th>โรงงาน</th><th class="r">คงเหลือ</th><th>หน่วย</th><th class="r">เตือน≤</th><th>สถานะ</th><th></th></tr></thead>
+    <tbody>${dlP + (state.materials.length? state.materials.map(m=>{const s=stat(m);return `<tr>
+      <td class="namecol"><input class="cell name" value="${esc(m.name)}" placeholder="เช่น เนื้อสครับ" oninput="mSet('${m.id}','name',this.value)"></td>
+      <td class="namecol"><input class="cell name" list="plants" value="${esc(m.plant)}" placeholder="โรงงาน" oninput="mSet('${m.id}','plant',this.value)"></td>
+      <td class="num"><input class="cell" type="number" step="any" value="${m.qty||''}" placeholder="0" oninput="mSet('${m.id}','qty',this.value)"></td>
+      <td class="small"><input class="cell name" value="${esc(m.unit)}" placeholder="โล/ใบ" oninput="mSet('${m.id}','unit',this.value)"></td>
+      <td class="small"><input class="cell" type="number" step="any" value="${m.reorder||''}" placeholder="0" oninput="mSet('${m.id}','reorder',this.value)"></td>
+      <td><span class="chip ${s.c}">${s.k}</span></td>
+      <td style="white-space:nowrap"><button class="icon-btn in" title="รับเข้าเพิ่ม" onclick="receiveMat('${m.id}')">📥</button><button class="icon-btn" title="ลบ" onclick="delMat('${m.id}')">🗑️</button></td>
+    </tr>`;}).join("") : `<tr><td colspan="7"><div class="empty">ยังไม่มีวัตถุดิบ — กด “+ เพิ่มวัตถุดิบ”</div></td></tr>`)}</tbody></table></div>`;
+}
+function finTable(){
+  return `<div class="scroll"><table>
+    <thead><tr><th>สินค้า</th><th class="r">คงเหลือ</th><th>หน่วย</th><th class="r">เตือน≤</th><th>สถานะ</th><th></th></tr></thead>
+    <tbody>${state.finished.length? state.finished.map(f=>{const s=stat(f);return `<tr>
+      <td class="namecol"><input class="cell name" value="${esc(f.name)}" placeholder="ชื่อสินค้า" oninput="fSet('${f.id}','name',this.value)"></td>
+      <td class="num"><input class="cell" type="number" step="any" value="${f.qty||''}" placeholder="0" oninput="fSet('${f.id}','qty',this.value)"></td>
+      <td class="small"><input class="cell name" value="${esc(f.unit)}" placeholder="ชิ้น" oninput="fSet('${f.id}','unit',this.value)"></td>
+      <td class="small"><input class="cell" type="number" step="any" value="${f.reorder||''}" placeholder="0" oninput="fSet('${f.id}','reorder',this.value)"></td>
+      <td><span class="chip ${s.c}">${s.k}</span></td>
+      <td><button class="icon-btn" title="ลบ" onclick="delFin('${f.id}')">🗑️</button></td>
+    </tr>`;}).join("") : `<tr><td colspan="6"><div class="empty">ยังไม่มีสินค้า — จะเพิ่มเองเมื่อกดสั่งผลิต หรือกด “+ เพิ่มสินค้า”</div></td></tr>`}</tbody></table></div>`;
 }
 
-/* ===== วัตถุดิบ ===== */
-function mSet(id,f,v){const m=matById(id);if(!m)return;if(f==='qty'||f==='reorder')m[f]=Math.max(0,parseFloat(v)||0);else m[f]=v;save();if(f==='qty'||f==='reorder')render();}
-function addMat(){state.materials.push({id:uid('T'),name:'',plant:'',qty:0,unit:'',reorder:0});save();render();setTimeout(()=>{const i=document.querySelectorAll('#matsBody tr .cell.name');if(i.length)i[(state.materials.length-1)*3]&&i[(state.materials.length-1)*3].focus();},50);}
-function delMat(id){state.materials=state.materials.filter(m=>m.id!==id);save();render();toast("ลบวัตถุดิบแล้ว");}
+/* ===== PAGES ===== */
+function renderDash(el){
+  const money=state.payments.reduce((s,p)=>s+(p.amount||0),0);
+  const low=lowItems();
+  el.innerHTML=`
+    <div class="cards">
+      <div class="kcard"><div class="k">วัตถุดิบ</div><div class="v">${state.materials.length} <small style="font-size:13px;color:var(--ink2)">รายการ</small></div></div>
+      <div class="kcard"><div class="k">สินค้าสำเร็จรูป</div><div class="v">${state.finished.length} <small style="font-size:13px;color:var(--ink2)">รายการ</small></div></div>
+      <div class="kcard warn"><div class="k">ใกล้หมด/หมด</div><div class="v">${low.length} <small style="font-size:13px;color:var(--ink2)">รายการ</small></div></div>
+      <div class="kcard"><div class="k">เงินที่สั่งรวม</div><div class="v">${baht(money)}</div></div>
+    </div>
+    <div class="produce-hero">
+      <div class="h">🏭 พร้อมผลิตหรือยัง?</div>
+      <button class="btn btn-primary btn-lg" onclick="openProduce()" style="margin-top:10px">สั่งผลิต</button>
+      <div class="flowhint">หักวัตถุดิบ + เพิ่มสินค้าสำเร็จรูปให้อัตโนมัติ</div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>⚠️ ต้องสั่งเพิ่ม (ใกล้หมด/หมด)</h2></div>
+      <div class="scroll"><table><thead><tr><th>รายการ</th><th>ประเภท</th><th class="r">คงเหลือ</th><th class="r">เตือน≤</th><th>สถานะ</th></tr></thead>
+      <tbody>${low.length? low.map(x=>{const s=stat(x);return `<tr><td><b>${esc(x.name)||'—'}</b></td><td><span class="tag">${x._t}</span></td><td class="r"><b>${fmt(x.qty)}</b> ${esc(x.unit)}</td><td class="r muted">${fmt(x.reorder)}</td><td><span class="chip ${s.c}">${s.k}</span></td></tr>`;}).join("") : `<tr><td colspan="5"><div class="empty">✓ ของครบทุกอย่าง ยังไม่มีอะไรใกล้หมด</div></td></tr>`}</tbody></table></div>
+    </div>`;
+}
+function renderMats(el){
+  el.innerHTML=`<div class="panel">
+    <div class="ph"><h2>🧪 วัตถุดิบที่โรงงาน <span class="sub">เนื้อ · กระปุก · ฉลาก</span></h2>
+      <div class="tools"><button class="btn btn-sm" onclick="exportMats()">⬇︎ CSV</button><button class="btn btn-primary btn-sm" onclick="addMat()">+ เพิ่มวัตถุดิบ</button></div></div>
+    ${matsTable()}</div>`;
+}
+function renderProduce(el){
+  const hist=[...state.productions].slice(-30).reverse();
+  el.innerHTML=`
+    <div class="produce-hero">
+      <div class="h">🏭 สั่งผลิต</div>
+      <button class="btn btn-primary btn-lg" onclick="openProduce()" style="margin-top:10px">เริ่มสั่งผลิต</button>
+      <div class="flowhint">พิมพ์ว่าผลิตอะไร กี่ชิ้น ใช้วัตถุดิบเท่าไหร่ → ระบบหักวัตถุดิบ + เพิ่มสินค้าสำเร็จรูปให้เอง</div>
+    </div>
+    <div class="panel">
+      <div class="ph"><h2>📜 ประวัติการผลิต</h2>${hist.length?`<div class="tools"><button class="btn btn-sm" onclick="exportProd()">⬇︎ CSV</button></div>`:''}</div>
+      <div class="scroll"><table><thead><tr><th>วันที่</th><th>สินค้า</th><th class="r">ผลิต</th><th>ใช้วัตถุดิบ</th></tr></thead>
+      <tbody>${hist.length? hist.map(p=>`<tr><td class="muted" style="white-space:nowrap">${esc(p.date)}</td><td><b>${esc(p.product)}</b></td><td class="r"><b>${fmt(p.qty)}</b> ${esc(p.unit)}</td><td class="muted">${(p.uses||[]).map(u=>esc(u.name)+" "+fmt(u.used)+" "+esc(u.unit)).join(" · ")}</td></tr>`).join("") : `<tr><td colspan="4"><div class="empty">ยังไม่มีประวัติการผลิต</div></td></tr>`}</tbody></table></div>
+    </div>`;
+}
+function renderFin(el){
+  el.innerHTML=`<div class="panel">
+    <div class="ph"><h2>📦 สินค้าสำเร็จรูปคงเหลือ</h2>
+      <div class="tools"><button class="btn btn-sm" onclick="exportFin()">⬇︎ CSV</button><button class="btn btn-sm" onclick="addFin()">+ เพิ่มสินค้า</button></div></div>
+    ${finTable()}</div>`;
+}
+function renderPays(el){
+  const total=state.payments.reduce((s,p)=>s+(p.amount||0),0);
+  el.innerHTML=`<div class="panel">
+    <div class="ph"><h2>💰 เงินที่สั่งแต่ละรอบ</h2>
+      <div class="tools"><button class="btn btn-sm" onclick="exportPays()">⬇︎ CSV</button><button class="btn btn-primary btn-sm" onclick="addPay()">+ เพิ่มรายการเงิน</button></div></div>
+    <div class="scroll"><table><thead><tr><th style="width:150px">วันที่</th><th>รายการ / รอบ</th><th class="r" style="width:150px">จำนวนเงิน (บาท)</th><th></th></tr></thead>
+    <tbody>${state.payments.length? state.payments.map(p=>`<tr>
+      <td style="width:150px"><input class="cell name" type="date" value="${p.date||''}" oninput="pSet('${p.id}','date',this.value)"></td>
+      <td><input class="cell name" value="${esc(p.note)}" placeholder="เช่น สั่งกระปุก AHA รอบ 1" oninput="pSet('${p.id}','note',this.value)"></td>
+      <td class="num" style="width:150px"><input class="cell" type="number" step="any" value="${p.amount||''}" placeholder="0" oninput="pSet('${p.id}','amount',this.value)"></td>
+      <td><button class="icon-btn" title="ลบ" onclick="delPay('${p.id}')">🗑️</button></td></tr>`).join("")+`<tr class="foot-row"><td colspan="2">รวมทั้งหมด</td><td class="money">${baht(total)}</td><td></td></tr>` : `<tr><td colspan="4"><div class="empty">ยังไม่มีรายการเงิน</div></td></tr>`}</tbody></table></div></div>`;
+}
+
+/* ===== data funcs ===== */
+function mSet(id,f,v){const m=matById(id);if(!m)return;if(f==='qty'||f==='reorder')m[f]=Math.max(0,parseFloat(v)||0);else m[f]=v;save();if((f==='qty'||f==='reorder')){const c=current;refreshAlert();}}
+function addMat(){state.materials.push({id:uid('T'),name:'',plant:'',qty:0,unit:'',reorder:0});save();go('mats');setTimeout(()=>{const i=document.querySelectorAll('#view tr .cell.name');if(i.length)i[(state.materials.length-1)*3]&&i[(state.materials.length-1)*3].focus();},60);}
+function delMat(id){state.materials=state.materials.filter(m=>m.id!==id);save();go('mats');toast("ลบวัตถุดิบแล้ว");}
 function receiveMat(id){const m=matById(id);if(!m)return;
   openModal(`<div class="mh"><h3>📥 รับ ${esc(m.name||'วัตถุดิบ')} เข้า</h3><button class="x" onclick="closeModal()">×</button></div>
-   <div class="mb"><div class="field"><label>รับเข้าเพิ่มกี่ ${esc(m.unit||'หน่วย')}?</label>
-   <input id="rc-qty" type="number" step="any" placeholder="เช่น 30000" autofocus></div>
-   <div class="prev">คงเหลือตอนนี้ <b>${fmt(m.qty)}</b> → หลังรับเข้าจะเป็น <b id="rc-after">${fmt(m.qty)}</b> ${esc(m.unit)}</div></div>
+   <div class="mb"><div class="field"><label>รับเข้าเพิ่มกี่ ${esc(m.unit||'หน่วย')}?</label><input id="rc-qty" type="number" step="any" placeholder="เช่น 30000"></div>
+   <div class="prev">คงเหลือตอนนี้ <b>${fmt(m.qty)}</b> → หลังรับเข้า <b id="rc-after">${fmt(m.qty)}</b> ${esc(m.unit)}</div></div>
    <div class="mf"><button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn btn-primary" onclick="doReceive('${id}')">รับเข้า</button></div>`);
-  setTimeout(()=>{const i=document.getElementById("rc-qty");i.focus();i.oninput=()=>{document.getElementById("rc-after").textContent=fmt((m.qty||0)+(parseFloat(i.value)||0));};},50);
-}
-function doReceive(id){const m=matById(id);if(!m)return;const add=Math.max(0,parseFloat(document.getElementById("rc-qty").value)||0);if(add<=0){toast("ใส่จำนวนก่อน",true);return;}m.qty=(m.qty||0)+add;save();closeModal();toast("รับเข้าแล้ว +"+fmt(add)+" "+(m.unit||''));render();}
+  setTimeout(()=>{const i=document.getElementById("rc-qty");i.focus();i.oninput=()=>{document.getElementById("rc-after").textContent=fmt((m.qty||0)+(parseFloat(i.value)||0));};},50);}
+function doReceive(id){const m=matById(id);if(!m)return;const a=Math.max(0,parseFloat(document.getElementById("rc-qty").value)||0);if(a<=0){toast("ใส่จำนวนก่อน",true);return;}m.qty=(m.qty||0)+a;save();closeModal();toast("รับเข้าแล้ว +"+fmt(a)+" "+(m.unit||''));go(current);}
 
-/* ===== สินค้าสำเร็จรูป ===== */
-const finById=id=>state.finished.find(f=>f.id===id);
-function fSet(id,f,v){const x=finById(id);if(!x)return;if(f==='qty'||f==='reorder')x[f]=Math.max(0,parseFloat(v)||0);else x[f]=v;save();if(f==='qty'||f==='reorder')render();}
-function addFin(){state.finished.push({id:uid('F'),name:'',qty:0,unit:'',reorder:0});save();render();}
-function delFin(id){state.finished=state.finished.filter(f=>f.id!==id);save();render();toast("ลบสินค้าแล้ว");}
-function finByName(name){name=(name||'').trim();return state.finished.find(f=>(f.name||'').trim()===name);}
+function fSet(id,f,v){const x=finById(id);if(!x)return;if(f==='qty'||f==='reorder')x[f]=Math.max(0,parseFloat(v)||0);else x[f]=v;save();if(f==='qty'||f==='reorder')refreshAlert();}
+function addFin(){state.finished.push({id:uid('F'),name:'',qty:0,unit:'',reorder:0});save();go('fin');}
+function delFin(id){state.finished=state.finished.filter(f=>f.id!==id);save();go('fin');toast("ลบสินค้าแล้ว");}
 
-/* ===== สั่งผลิต (หักวัตถุดิบ → เพิ่มสินค้า) ===== */
+/* ===== สั่งผลิต ===== */
 let prodUses=[];
 function openProduce(){
-  if(state.materials.length===0){toast("เพิ่มวัตถุดิบก่อน (เนื้อ/กระปุก)",true);return;}
+  if(state.materials.length===0){toast("เพิ่มวัตถุดิบก่อน (เนื้อ/กระปุก)",true);go('mats');return;}
   prodUses=[{matId:state.materials[0].id,per:0}];
   const finNames=[...new Set(state.finished.map(f=>f.name).filter(Boolean))];
-  openModal(`
-   <div class="mh"><h3>🏭 สั่งผลิต</h3><button class="x" onclick="closeModal()">×</button></div>
+  openModal(`<div class="mh"><h3>🏭 สั่งผลิต</h3><button class="x" onclick="closeModal()">×</button></div>
    <div class="mb">
      <div class="frow">
        <div class="field"><label>ผลิตสินค้า *</label><input id="pr-name" list="finl" placeholder="เช่น สครับ AHA" oninput="onProdName()"><datalist id="finl">${finNames.map(n=>`<option value="${esc(n)}">`).join("")}</datalist></div>
@@ -294,68 +334,54 @@ function openProduce(){
      <button class="btn btn-sm" style="margin-top:2px" onclick="addProdUse()">+ เพิ่มวัตถุดิบ</button>
      <div class="prev" id="pr-prev"></div>
    </div>
-   <div class="mf"><button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn btn-primary" onclick="doProduce()">✓ ผลิต (หักของ+เพิ่มสินค้า)</button></div>`);
-  renderProdUses();
-  setTimeout(()=>document.getElementById("pr-name").focus(),50);
+   <div class="mf"><button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn btn-primary" onclick="doProduce()">✓ ผลิต</button></div>`);
+  renderProdUses();setTimeout(()=>document.getElementById("pr-name").focus(),50);
 }
-function onProdName(){
-  const name=(document.getElementById("pr-name").value||'').trim();
-  if(state.recipes[name]&&state.recipes[name].length){ prodUses=state.recipes[name].map(u=>({matId:u.matId,per:u.per})); renderProdUses(); }
-}
+function onProdName(){const name=(document.getElementById("pr-name").value||'').trim();if(state.recipes[name]&&state.recipes[name].length){prodUses=state.recipes[name].map(u=>({matId:u.matId,per:u.per}));renderProdUses();}}
 function matOptions(sel){return state.materials.map(m=>`<option value="${m.id}" ${m.id===sel?'selected':''}>${esc(m.name)} (${esc(m.unit)})</option>`).join("");}
-function renderProdUses(){
-  document.getElementById("pr-uses").innerHTML=prodUses.map((u,i)=>`<div class="userow">
-    <select onchange="prodUses[${i}].matId=this.value;prCalc()">${matOptions(u.matId)}</select>
-    <input type="number" step="any" placeholder="/ชิ้น" value="${u.per||''}" oninput="prodUses[${i}].per=parseFloat(this.value)||0;prCalc()">
-    <button class="icon-btn" onclick="rmProdUse(${i})" ${prodUses.length<=1?'style="visibility:hidden"':''}>✕</button>
-  </div>`).join("");
-  prCalc();
-}
+function renderProdUses(){document.getElementById("pr-uses").innerHTML=prodUses.map((u,i)=>`<div class="userow">
+   <select onchange="prodUses[${i}].matId=this.value;prCalc()">${matOptions(u.matId)}</select>
+   <input type="number" step="any" placeholder="/ชิ้น" value="${u.per||''}" oninput="prodUses[${i}].per=parseFloat(this.value)||0;prCalc()">
+   <button class="icon-btn" onclick="rmProdUse(${i})" ${prodUses.length<=1?'style="visibility:hidden"':''}>✕</button></div>`).join("");prCalc();}
 function addProdUse(){prodUses.push({matId:state.materials[0].id,per:0});renderProdUses();}
 function rmProdUse(i){prodUses.splice(i,1);renderProdUses();}
-function prCalc(){
-  const qty=Math.max(0,parseFloat((document.getElementById("pr-qty")||{}).value)||0);
-  const name=((document.getElementById("pr-name")||{}).value||'').trim();
-  let html="";
-  prodUses.forEach(u=>{const m=matById(u.matId);if(!m)return;const used=qty*(u.per||0);const after=(m.qty||0)-used;const bad=used>(m.qty||0);
-    html+=`<div>${esc(m.name)}: ใช้ <b>${fmt(used)}</b> ${esc(m.unit)} · เหลือ <b class="${bad?'bad':''}">${fmt(after)}</b>${bad?' ⚠️ไม่พอ':''}</div>`;});
-  html+=`<div style="margin-top:5px">ได้สินค้า <b>${esc(name||'—')} +${fmt(qty)}</b> เข้าสต๊อกสำเร็จรูป</div>`;
-  const p=document.getElementById("pr-prev");if(p)p.innerHTML=html;
-}
+function prCalc(){const qty=Math.max(0,parseFloat((document.getElementById("pr-qty")||{}).value)||0);const name=((document.getElementById("pr-name")||{}).value||'').trim();let h="";
+  prodUses.forEach(u=>{const m=matById(u.matId);if(!m)return;const used=qty*(u.per||0);const after=(m.qty||0)-used;const bad=used>(m.qty||0);h+=`<div>${esc(m.name)}: ใช้ <b>${fmt(used)}</b> ${esc(m.unit)} · เหลือ <b class="${bad?'bad':''}">${fmt(after)}</b>${bad?' ⚠️ไม่พอ':''}</div>`;});
+  h+=`<div style="margin-top:5px">ได้สินค้า <b>${esc(name||'—')} +${fmt(qty)}</b> เข้าสต๊อกสำเร็จรูป</div>`;const p=document.getElementById("pr-prev");if(p)p.innerHTML=h;}
 function doProduce(){
-  const name=(document.getElementById("pr-name").value||'').trim();
-  const qty=Math.max(0,parseFloat(document.getElementById("pr-qty").value)||0);
-  const unit=(document.getElementById("pr-unit").value||'').trim()||'ชิ้น';
-  if(!name){toast("ใส่ชื่อสินค้าก่อน",true);return;}
-  if(qty<=0){toast("ใส่จำนวนที่ผลิต",true);return;}
-  // เช็คว่าวัตถุดิบพอ
+  const name=(document.getElementById("pr-name").value||'').trim();const qty=Math.max(0,parseFloat(document.getElementById("pr-qty").value)||0);const unit=(document.getElementById("pr-unit").value||'').trim()||'ชิ้น';
+  if(!name){toast("ใส่ชื่อสินค้าก่อน",true);return;}if(qty<=0){toast("ใส่จำนวนที่ผลิต",true);return;}
   for(const u of prodUses){const m=matById(u.matId);if(!m)continue;if(qty*(u.per||0)>(m.qty||0)){toast(`${m.name} ไม่พอ (เหลือ ${fmt(m.qty)} ${m.unit})`,true);return;}}
-  // หักวัตถุดิบ
-  prodUses.forEach(u=>{const m=matById(u.matId);if(m)m.qty=Math.max(0,(m.qty||0)-qty*(u.per||0));});
-  // เพิ่มสินค้าสำเร็จรูป
-  let f=finByName(name);
-  if(f){f.qty=(f.qty||0)+qty;} else {state.finished.push({id:uid('F'),name,qty,unit,reorder:0});}
-  // จำสูตรไว้ (พิมพ์ครั้งหน้าเติมให้เอง)
+  const uses=[];
+  prodUses.forEach(u=>{const m=matById(u.matId);if(!m||!(u.per>0))return;const used=qty*u.per;m.qty=Math.max(0,(m.qty||0)-used);uses.push({name:m.name,used,unit:m.unit});});
+  let f=finByName(name);if(f){f.qty=(f.qty||0)+qty;}else{state.finished.push({id:uid('F'),name,qty,unit,reorder:0});}
   state.recipes[name]=prodUses.filter(u=>u.per>0).map(u=>({matId:u.matId,per:u.per}));
-  save();closeModal();toast("ผลิตแล้ว — หักวัตถุดิบ + เพิ่มสินค้าให้แล้ว");render();
+  state.productions.push({id:uid('P'),date:new Date().toISOString().slice(0,10),product:name,qty,unit,uses});
+  save();closeModal();toast("ผลิตแล้ว — หักวัตถุดิบ + เพิ่มสินค้าให้แล้ว");go(current==='mats'||current==='fin'||current==='produce'?current:'produce');
 }
 
 /* ===== เงิน ===== */
-function pSet(id,f,v){const p=state.payments.find(x=>x.id===id);if(!p)return;if(f==='amount'){p.amount=Math.max(0,parseFloat(v)||0);render();}else p[f]=v;save();}
-function addPay(){state.payments.push({id:uid('M'),date:new Date().toISOString().slice(0,10),note:'',amount:0});save();render();}
-function delPay(id){state.payments=state.payments.filter(p=>p.id!==id);save();render();toast("ลบรายการแล้ว");}
+function pSet(id,f,v){const p=state.payments.find(x=>x.id===id);if(!p)return;if(f==='amount'){p.amount=Math.max(0,parseFloat(v)||0);go('pays');}else p[f]=v;save();}
+function addPay(){state.payments.push({id:uid('M'),date:new Date().toISOString().slice(0,10),note:'',amount:0});save();go('pays');}
+function delPay(id){state.payments=state.payments.filter(p=>p.id!==id);save();go('pays');toast("ลบรายการแล้ว");}
 
 /* ===== CSV ===== */
 function dl(name,rows){const csv=rows.map(r=>r.map(c=>{const s=String(c==null?"":c);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}).join(",")).join("\n");const b=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8;"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),500);}
-function exportMats(){const r=[["วัตถุดิบ","โรงงาน","คงเหลือ","หน่วย","เตือนเมื่อ≤","สถานะ"]];state.materials.forEach(m=>r.push([m.name,m.plant||'',m.qty||0,m.unit||'',m.reorder||0,stat(m).k]));dl("antheara-วัตถุดิบ.csv",r);}
-function exportFin(){const r=[["สินค้า","คงเหลือ","หน่วย","เตือนเมื่อ≤","สถานะ"]];state.finished.forEach(f=>r.push([f.name,f.qty||0,f.unit||'',f.reorder||0,stat(f).k]));dl("antheara-สินค้าสำเร็จรูป.csv",r);}
+function exportMats(){const r=[["วัตถุดิบ","โรงงาน","คงเหลือ","หน่วย","เตือน≤","สถานะ"]];state.materials.forEach(m=>r.push([m.name,m.plant||'',m.qty||0,m.unit||'',m.reorder||0,stat(m).k]));dl("antheara-วัตถุดิบ.csv",r);}
+function exportFin(){const r=[["สินค้า","คงเหลือ","หน่วย","เตือน≤","สถานะ"]];state.finished.forEach(f=>r.push([f.name,f.qty||0,f.unit||'',f.reorder||0,stat(f).k]));dl("antheara-สินค้าสำเร็จรูป.csv",r);}
+function exportProd(){const r=[["วันที่","สินค้า","ผลิต","หน่วย","ใช้วัตถุดิบ"]];state.productions.forEach(p=>r.push([p.date,p.product,p.qty,p.unit,(p.uses||[]).map(u=>u.name+" "+u.used+" "+u.unit).join(" | ")]));dl("antheara-ประวัติการผลิต.csv",r);}
 function exportPays(){const r=[["วันที่","รายการ/รอบ","จำนวนเงิน"]];state.payments.forEach(p=>r.push([p.date||'',p.note||'',p.amount||0]));dl("antheara-เงินสั่ง.csv",r);}
 
-/* ===== modal + toast ===== */
+/* ===== sidebar / modal / toast ===== */
+function openSidebar(){document.getElementById("sidebar").classList.add("open");document.getElementById("backdrop").classList.add("show");}
+function closeSidebar(){document.getElementById("sidebar").classList.remove("open");document.getElementById("backdrop").classList.remove("show");}
 function openModal(h){document.getElementById("modal").innerHTML=h;document.getElementById("modalBg").classList.add("show");}
 function closeModal(){document.getElementById("modalBg").classList.remove("show");}
 document.getElementById("modalBg").addEventListener("mousedown",e=>{if(e.target.id==="modalBg")closeModal();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+document.getElementById("nav").addEventListener("click",e=>{const a=e.target.closest("a[data-r]");if(!a)return;e.preventDefault();go(a.dataset.r);});
+document.getElementById("burger").addEventListener("click",openSidebar);
+document.getElementById("backdrop").addEventListener("click",closeSidebar);
 let _tt=null;function toast(m,err){const t=document.getElementById("toast");t.textContent=m;t.className="toast show"+(err?" err":"");clearTimeout(_tt);_tt=setTimeout(()=>t.className="toast"+(err?" err":""),2400);}
 
 boot();
