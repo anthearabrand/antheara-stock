@@ -119,6 +119,7 @@
       <a data-r="mats"><span class="ic">🧪</span> วัตถุดิบ</a>
       <a data-r="produce"><span class="ic">🏭</span> สั่งผลิต</a>
       <a data-r="fin"><span class="ic">📦</span> สินค้าสำเร็จรูป</a>
+      <a data-r="wh"><span class="ic">🏬</span> คลังรังสิต</a>
       <a data-r="pays"><span class="ic">💰</span> เงินที่สั่ง</a>
     </nav>
     <div class="sb-foot"><div id="sync" class="sync">กำลังโหลด…</div></div>
@@ -146,15 +147,15 @@ const SUPABASE_URL="https://hddwywofpqqlufslshaq.supabase.co";
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ 9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkZHd5d29mcHFxbHVmc2xzaGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTMwNTQsImV4cCI6MjEwMDg4OTA1NH0.MqxmX9uv78NkVw7c-E9hZfONt19yW3HX1-XpOv_4AMw".replace(/\s/g,'');
 const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
 
-let state={materials:[],finished:[],recipes:{},productions:[],payments:[],_v:5};
+let state={materials:[],finished:[],warehouse:[],recipes:{},productions:[],payments:[],_v:6};
 
 function migrate(s){
-  if(!s||typeof s!=="object") return {materials:[],finished:[],recipes:{},productions:[],payments:[],_v:5};
-  if(s._v===5||s._v===4){ s.materials=s.materials||[];s.finished=s.finished||[];s.recipes=s.recipes||{};s.productions=s.productions||[];s.payments=s.payments||[];s._v=5; return s; }
+  if(!s||typeof s!=="object") return {materials:[],finished:[],warehouse:[],recipes:{},productions:[],payments:[],_v:6};
+  if(s._v===6||s._v===5||s._v===4){ s.materials=s.materials||[];s.finished=s.finished||[];s.warehouse=s.warehouse||[];s.recipes=s.recipes||{};s.productions=s.productions||[];s.payments=s.payments||[];s._v=6; return s; }
   const materials=Array.isArray(s.materials)?s.materials.map(m=>({id:m.id,name:m.name,plant:m.plant||'',qty:m.qty||0,unit:m.unit||'',reorder:m.reorder||0})):[];
   const payments=Array.isArray(s.payments)?s.payments:[];
   const legacy=s._legacy||{rounds:s.rounds,products:s.products,items:s.items,movements:s.movements,locations:s.locations};
-  return {materials,finished:[],recipes:{},productions:[],payments,_v:5,_legacy:legacy};
+  return {materials,finished:[],warehouse:[],recipes:{},productions:[],payments,_v:6,_legacy:legacy};
 }
 
 function setSync(t,c){const e=document.getElementById("sync");if(e){e.textContent=t;e.className="sync "+(c||"");}}
@@ -177,7 +178,7 @@ async function boot(){
       const{data,error}=await sb.rpc("rpc_stock_load");if(error)throw error;
       if(data&&(data._v||data.materials||data.rounds||data.products||data.items)){
         state=migrate(data);loaded=true;setSync("เชื่อมต่อแล้ว ✓","ok");
-        if(data._v!==5) await sb.rpc("rpc_stock_save",{p_data:state});
+        if(data._v!==6) await sb.rpc("rpc_stock_save",{p_data:state});
       } else { state=ld?migrate(ld):migrate(null); await sb.rpc("rpc_stock_save",{p_data:state}); loaded=true; setSync("เชื่อมต่อแล้ว ✓","ok"); }
     }catch(e){console.warn("Supabase:",e);}
   }
@@ -193,10 +194,11 @@ function stat(x){const q=x.qty||0;if(q<=0)return{k:"หมด",c:"c-danger"};if(
 const matById=id=>state.materials.find(m=>m.id===id);
 const finById=id=>state.finished.find(f=>f.id===id);
 const finByName=name=>{name=(name||'').trim();return state.finished.find(f=>(f.name||'').trim()===name);};
-const lowItems=()=>[...state.materials.map(m=>({...m,_t:'วัตถุดิบ'})),...state.finished.map(f=>({...f,_t:'สินค้า'}))].filter(x=>(x.name&&x.name.trim())&&(x.qty||0)<=(x.reorder||0)&&(x.reorder>0||x.qty<=0));
+const whById=id=>state.warehouse.find(w=>w.id===id);
+const lowItems=()=>[...state.materials.map(m=>({...m,_t:'วัตถุดิบ'})),...state.finished.map(f=>({...f,_t:'สินค้า(โรงงาน)'})),...state.warehouse.map(w=>({...w,_t:'คลังรังสิต'}))].filter(x=>(x.name&&x.name.trim())&&(x.qty||0)<=(x.reorder||0)&&(x.reorder>0||x.qty<=0));
 
 /* ===== ROUTER ===== */
-const ROUTES={dash:{t:"แดชบอร์ด",f:renderDash},mats:{t:"วัตถุดิบ",f:renderMats},produce:{t:"สั่งผลิต",f:renderProduce},fin:{t:"สินค้าสำเร็จรูป",f:renderFin},pays:{t:"เงินที่สั่ง",f:renderPays}};
+const ROUTES={dash:{t:"แดชบอร์ด",f:renderDash},mats:{t:"วัตถุดิบ",f:renderMats},produce:{t:"สั่งผลิต",f:renderProduce},fin:{t:"สินค้าสำเร็จรูป",f:renderFin},wh:{t:"คลังรังสิต",f:renderWh},pays:{t:"เงินที่สั่ง",f:renderPays}};
 let current="dash";
 function go(r){
   if(!ROUTES[r])r="dash";current=r;
@@ -283,9 +285,61 @@ function renderProduce(el){
 }
 function renderFin(el){
   el.innerHTML=`<div class="panel">
-    <div class="ph"><h2>📦 สินค้าสำเร็จรูปคงเหลือ</h2>
-      <div class="tools"><button class="btn btn-sm" onclick="exportFin()">⬇︎ CSV</button><button class="btn btn-sm" onclick="addFin()">+ เพิ่มสินค้า</button></div></div>
+    <div class="ph"><h2>📦 สินค้าสำเร็จรูป <span class="sub">ที่โรงงาน · ผลิตเสร็จรอส่ง</span></h2>
+      <div class="tools"><button class="btn btn-sm" onclick="exportFin()">⬇︎ CSV</button><button class="btn btn-sm" onclick="addFin()">+ เพิ่มสินค้า</button><button class="btn btn-primary btn-sm" onclick="shipToWh()">🚚 ส่งเข้าคลังรังสิต</button></div></div>
     ${finTable()}</div>`;
+}
+function whTable(){
+  return `<div class="scroll"><table>
+    <thead><tr><th>สินค้า</th><th class="r">คงเหลือ</th><th>หน่วย</th><th class="r">เตือน≤</th><th>สถานะ</th><th></th></tr></thead>
+    <tbody>${state.warehouse.length? state.warehouse.map(w=>{const s=stat(w);return `<tr>
+      <td class="namecol"><input class="cell name" value="${esc(w.name)}" placeholder="ชื่อสินค้า" oninput="whSet('${w.id}','name',this.value)"></td>
+      <td class="num"><input class="cell" type="number" step="any" value="${w.qty||''}" placeholder="0" oninput="whSet('${w.id}','qty',this.value)"></td>
+      <td class="small"><input class="cell name" value="${esc(w.unit)}" placeholder="ชิ้น" oninput="whSet('${w.id}','unit',this.value)"></td>
+      <td class="small"><input class="cell" type="number" step="any" value="${w.reorder||''}" placeholder="0" oninput="whSet('${w.id}','reorder',this.value)"></td>
+      <td><span class="chip ${s.c}">${s.k}</span></td>
+      <td><button class="icon-btn" title="ลบ" onclick="delWh('${w.id}')">🗑️</button></td>
+    </tr>`;}).join("") : `<tr><td colspan="6"><div class="empty">ยังไม่มีสินค้าที่คลังรังสิต — กด “🚚 ส่งสินค้าเข้าคลัง”</div></td></tr>`}</tbody></table></div>`;
+}
+function renderWh(el){
+  el.innerHTML=`<div class="panel">
+    <div class="ph"><h2>🏬 คลังรังสิต <span class="sub">สินค้าพร้อมขาย (ส่งมาจากโรงงาน)</span></h2>
+      <div class="tools"><button class="btn btn-sm" onclick="exportWh()">⬇︎ CSV</button><button class="btn btn-sm" onclick="addWh()">+ เพิ่มสินค้า</button><button class="btn btn-primary btn-sm" onclick="shipToWh()">🚚 ส่งสินค้าเข้าคลัง</button></div></div>
+    ${whTable()}</div>`;
+}
+function whSet(id,f,v){const w=whById(id);if(!w)return;if(f==='qty'||f==='reorder')w[f]=Math.max(0,parseFloat(v)||0);else w[f]=v;save();if(f==='qty'||f==='reorder')refreshAlert();}
+function addWh(){state.warehouse.push({id:uid('W'),name:'',qty:0,unit:'',reorder:0});save();go('wh');}
+function delWh(id){state.warehouse=state.warehouse.filter(w=>w.id!==id);save();go('wh');toast("ลบแล้ว");}
+
+/* ส่งสินค้าจากโรงงาน → คลังรังสิต (หักโรงงาน + เพิ่มคลัง) */
+function shipToWh(){
+  const avail=state.finished.filter(f=>f.name&&(f.qty||0)>0);
+  if(avail.length===0){toast("ยังไม่มีสินค้าที่ผลิตเสร็จให้ส่ง",true);go('fin');return;}
+  openModal(`<div class="mh"><h3>🚚 ส่งเข้าคลังรังสิต</h3><button class="x" onclick="closeModal()">×</button></div>
+   <div class="mb">
+     <div class="field"><label>สินค้า *</label><select id="sh-prod" onchange="shCalc()">${avail.map(f=>`<option value="${f.id}">${esc(f.name)} — ที่โรงงานเหลือ ${fmt(f.qty)} ${esc(f.unit)}</option>`).join("")}</select></div>
+     <div class="field"><label>จำนวนที่ส่ง *</label><input id="sh-qty" type="number" step="any" placeholder="เช่น 5000" oninput="shCalc()"></div>
+     <div class="prev" id="sh-prev"></div>
+   </div>
+   <div class="mf"><button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn btn-primary" onclick="doShip()">✓ ส่งเข้าคลัง</button></div>`);
+  setTimeout(()=>{shCalc();document.getElementById("sh-qty").focus();},50);
+}
+function shCalc(){
+  const f=finById(document.getElementById("sh-prod").value);if(!f)return;
+  const qty=Math.max(0,parseFloat((document.getElementById("sh-qty")||{}).value)||0);
+  const w=state.warehouse.find(x=>(x.name||'').trim()===(f.name||'').trim());
+  const whNow=w?w.qty||0:0;const bad=qty>(f.qty||0);
+  document.getElementById("sh-prev").innerHTML=`โรงงาน: ${fmt(f.qty)} → <b class="${bad?'bad':''}">${fmt((f.qty||0)-qty)}</b> ${esc(f.unit)}${bad?' ⚠️ส่งมากกว่าที่มี':''}<br>คลังรังสิต: ${fmt(whNow)} → <b>${fmt(whNow+qty)}</b> ${esc(f.unit)}`;
+}
+function doShip(){
+  const f=finById(document.getElementById("sh-prod").value);if(!f)return;
+  const qty=Math.max(0,parseFloat(document.getElementById("sh-qty").value)||0);
+  if(qty<=0){toast("ใส่จำนวน",true);return;}
+  if(qty>(f.qty||0)){toast(`ส่งได้ไม่เกิน ${fmt(f.qty)} ${f.unit} (ที่โรงงานมี)`,true);return;}
+  f.qty=(f.qty||0)-qty;
+  let w=state.warehouse.find(x=>(x.name||'').trim()===(f.name||'').trim());
+  if(w){w.qty=(w.qty||0)+qty;}else{state.warehouse.push({id:uid('W'),name:f.name,qty,unit:f.unit,reorder:0});}
+  save();closeModal();toast("ส่งเข้าคลังรังสิตแล้ว — หักจากโรงงานให้แล้ว");go(current==='wh'?'wh':'fin');
 }
 function renderPays(el){
   const total=state.payments.reduce((s,p)=>s+(p.amount||0),0);
@@ -370,6 +424,7 @@ function dl(name,rows){const csv=rows.map(r=>r.map(c=>{const s=String(c==null?""
 function exportMats(){const r=[["วัตถุดิบ","โรงงาน","คงเหลือ","หน่วย","เตือน≤","สถานะ"]];state.materials.forEach(m=>r.push([m.name,m.plant||'',m.qty||0,m.unit||'',m.reorder||0,stat(m).k]));dl("antheara-วัตถุดิบ.csv",r);}
 function exportFin(){const r=[["สินค้า","คงเหลือ","หน่วย","เตือน≤","สถานะ"]];state.finished.forEach(f=>r.push([f.name,f.qty||0,f.unit||'',f.reorder||0,stat(f).k]));dl("antheara-สินค้าสำเร็จรูป.csv",r);}
 function exportProd(){const r=[["วันที่","สินค้า","ผลิต","หน่วย","ใช้วัตถุดิบ"]];state.productions.forEach(p=>r.push([p.date,p.product,p.qty,p.unit,(p.uses||[]).map(u=>u.name+" "+u.used+" "+u.unit).join(" | ")]));dl("antheara-ประวัติการผลิต.csv",r);}
+function exportWh(){const r=[["สินค้า","คงเหลือ","หน่วย","เตือน≤","สถานะ"]];state.warehouse.forEach(w=>r.push([w.name,w.qty||0,w.unit||'',w.reorder||0,stat(w).k]));dl("antheara-คลังรังสิต.csv",r);}
 function exportPays(){const r=[["วันที่","รายการ/รอบ","จำนวนเงิน"]];state.payments.forEach(p=>r.push([p.date||'',p.note||'',p.amount||0]));dl("antheara-เงินสั่ง.csv",r);}
 
 /* ===== sidebar / modal / toast ===== */
