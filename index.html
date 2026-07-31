@@ -76,6 +76,8 @@
   .icon-btn{background:none;border:0;font-size:16px;padding:6px 7px;border-radius:8px;color:var(--ink2)}
   .icon-btn:hover{background:#f4ece2;color:var(--danger)}.icon-btn.in:hover{background:var(--ok-soft);color:var(--ok)}
   .foot-row td{padding:12px;font-weight:700;background:#fdfbf8;border-top:2px solid var(--line)}
+  .mgroup td{background:#f2e9db;font-weight:700;font-size:13.5px;color:var(--accent);padding:9px 12px}
+  .icon-btn.hasdoc{color:var(--accent)}
   .empty{padding:26px 18px;text-align:center;color:var(--ink2)}
 
   .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 16px;border-radius:11px;font-weight:600;font-size:14px;border:1px solid var(--line);background:#fff;color:var(--ink);transition:.12s;white-space:nowrap}
@@ -189,6 +191,8 @@ async function boot(){
 const uid=p=>p+Date.now().toString(36)+Math.floor(Math.random()*1000).toString(36);
 const fmt=n=>{n=Math.round((n||0)*1000)/1000;return n.toLocaleString("th-TH");};
 const baht=n=>"฿"+Math.round(n||0).toLocaleString("th-TH");
+const THMON=['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function monthLabel(k){if(!k||k==='ไม่ระบุ')return 'ไม่ระบุเดือน';const p=k.split('-');return THMON[(parseInt(p[1])||1)-1]+' '+(parseInt(p[0])+543);}
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function stat(x){const q=x.qty||0;if(q<=0)return{k:"หมด",c:"c-danger"};if(q<=(x.reorder||0))return{k:"ใกล้หมด",c:"c-warn"};return{k:"พอ",c:"c-ok"};}
 const matById=id=>state.materials.find(m=>m.id===id);
@@ -217,17 +221,16 @@ function matsTable(){
   const plants=[...new Set(state.materials.map(m=>m.plant).filter(Boolean))];
   const dlP=`<datalist id="plants">${plants.map(p=>`<option value="${esc(p)}">`).join("")}</datalist>`;
   return `<div class="scroll"><table>
-    <thead><tr><th>วัตถุดิบ</th><th>โรงงาน</th><th class="r">คงเหลือ</th><th>หน่วย</th><th class="r">ราคา/หน่วย</th><th class="r">เตือน≤</th><th>สถานะ</th><th></th></tr></thead>
+    <thead><tr><th>วัตถุดิบ</th><th>โรงงาน</th><th class="r">คงเหลือ</th><th>หน่วย</th><th class="r">เตือน≤</th><th>สถานะ</th><th></th></tr></thead>
     <tbody>${dlP + (state.materials.length? state.materials.map(m=>{const s=stat(m);return `<tr>
       <td class="namecol"><input class="cell name" value="${esc(m.name)}" placeholder="เช่น เนื้อสครับ" oninput="mSet('${m.id}','name',this.value)"></td>
       <td class="namecol"><input class="cell name" list="plants" value="${esc(m.plant)}" placeholder="โรงงาน" oninput="mSet('${m.id}','plant',this.value)"></td>
       <td class="num"><input class="cell" type="number" step="any" value="${m.qty||''}" placeholder="0" oninput="mSet('${m.id}','qty',this.value)"></td>
       <td class="small"><input class="cell name" value="${esc(m.unit)}" placeholder="โล/ใบ" oninput="mSet('${m.id}','unit',this.value)"></td>
-      <td class="small"><input class="cell" type="number" step="any" value="${m.cost||''}" placeholder="฿0" oninput="mSet('${m.id}','cost',this.value)"></td>
       <td class="small"><input class="cell" type="number" step="any" value="${m.reorder||''}" placeholder="0" oninput="mSet('${m.id}','reorder',this.value)"></td>
       <td><span class="chip ${s.c}">${s.k}</span></td>
       <td style="white-space:nowrap"><button class="icon-btn in" title="รับเข้าเพิ่ม" onclick="receiveMat('${m.id}')">📥</button><button class="icon-btn" title="ลบ" onclick="delMat('${m.id}')">🗑️</button></td>
-    </tr>`;}).join("") : `<tr><td colspan="8"><div class="empty">ยังไม่มีวัตถุดิบ — กด “+ เพิ่มวัตถุดิบ”</div></td></tr>`)}</tbody></table></div>`;
+    </tr>`;}).join("") : `<tr><td colspan="7"><div class="empty">ยังไม่มีวัตถุดิบ — กด “+ เพิ่มวัตถุดิบ”</div></td></tr>`)}</tbody></table></div>`;
 }
 function finTable(){
   return `<div class="scroll"><table>
@@ -290,8 +293,8 @@ function renderProduce(el){
     </div>
     <div class="panel">
       <div class="ph"><h2>📜 ประวัติการผลิต</h2>${hist.length?`<div class="tools"><button class="btn btn-sm" onclick="exportProd()">⬇︎ CSV</button></div>`:''}</div>
-      <div class="scroll"><table><thead><tr><th>วันที่</th><th>สินค้า</th><th class="r">ผลิต</th><th>ใช้วัตถุดิบ</th><th class="r">ต้นทุน</th></tr></thead>
-      <tbody>${hist.length? hist.map(p=>`<tr><td class="muted" style="white-space:nowrap">${esc(p.date)}</td><td><b>${esc(p.product)}</b></td><td class="r"><b>${fmt(p.qty)}</b> ${esc(p.unit)}</td><td class="muted">${(p.uses||[]).map(u=>esc(u.name)+" "+fmt(u.used)+" "+esc(u.unit)).join(" · ")}</td><td class="r"><b>${p.cost?baht(p.cost):'—'}</b></td></tr>`).join("") : `<tr><td colspan="5"><div class="empty">ยังไม่มีประวัติการผลิต</div></td></tr>`}</tbody></table></div>
+      <div class="scroll"><table><thead><tr><th>วันที่</th><th>สินค้า</th><th class="r">ผลิต</th><th>ใช้วัตถุดิบ</th></tr></thead>
+      <tbody>${hist.length? hist.map(p=>`<tr><td class="muted" style="white-space:nowrap">${esc(p.date)}</td><td><b>${esc(p.product)}</b></td><td class="r"><b>${fmt(p.qty)}</b> ${esc(p.unit)}</td><td class="muted">${(p.uses||[]).map(u=>esc(u.name)+" "+fmt(u.used)+" "+esc(u.unit)).join(" · ")}</td></tr>`).join("") : `<tr><td colspan="4"><div class="empty">ยังไม่มีประวัติการผลิต</div></td></tr>`}</tbody></table></div>
     </div>`;
 }
 function renderFin(el){
@@ -353,20 +356,35 @@ function doShip(){
   save();closeModal();toast("ส่งเข้าคลังรังสิตแล้ว — หักจากโรงงานให้แล้ว");go(current==='wh'?'wh':'fin');
 }
 function renderPays(el){
-  const total=state.payments.reduce((s,p)=>s+(p.amount||0),0);
-  el.innerHTML=`<div class="panel">
-    <div class="ph"><h2>💰 เงินที่สั่งแต่ละรอบ</h2>
-      <div class="tools"><button class="btn btn-sm" onclick="exportPays()">⬇︎ CSV</button><button class="btn btn-primary btn-sm" onclick="addPay()">+ เพิ่มรายการเงิน</button></div></div>
-    <div class="scroll"><table><thead><tr><th style="width:150px">วันที่</th><th>รายการ / รอบ</th><th class="r" style="width:150px">จำนวนเงิน (บาท)</th><th></th></tr></thead>
-    <tbody>${state.payments.length? state.payments.map(p=>`<tr>
+  const pays=state.payments;const total=pays.reduce((s,p)=>s+(p.amount||0),0);
+  const groups={};pays.forEach(p=>{const k=(p.date||'').slice(0,7)||'ไม่ระบุ';(groups[k]=groups[k]||[]).push(p);});
+  const keys=Object.keys(groups).sort((a,b)=>b.localeCompare(a));
+  let rows='';
+  keys.forEach(k=>{const sub=groups[k].reduce((s,p)=>s+(p.amount||0),0);
+    rows+=`<tr class="mgroup"><td colspan="4">📅 ${monthLabel(k)} — รวม ${baht(sub)} (${groups[k].length} รายการ)</td></tr>`;
+    groups[k].forEach(p=>{rows+=`<tr>
       <td style="width:150px"><input class="cell name" type="date" value="${p.date||''}" oninput="pSet('${p.id}','date',this.value)"></td>
       <td><input class="cell name" value="${esc(p.note)}" placeholder="เช่น สั่งกระปุก AHA รอบ 1" oninput="pSet('${p.id}','note',this.value)"></td>
-      <td class="num" style="width:150px"><input class="cell" type="number" step="any" value="${p.amount||''}" placeholder="0" oninput="pSet('${p.id}','amount',this.value)"></td>
-      <td><button class="icon-btn" title="ลบ" onclick="delPay('${p.id}')">🗑️</button></td></tr>`).join("")+`<tr class="foot-row"><td colspan="2">รวมทั้งหมด</td><td class="money">${baht(total)}</td><td></td></tr>` : `<tr><td colspan="4"><div class="empty">ยังไม่มีรายการเงิน</div></td></tr>`}</tbody></table></div></div>`;
+      <td class="num" style="width:140px"><input class="cell" type="number" step="any" value="${p.amount||''}" placeholder="0" oninput="pSet('${p.id}','amount',this.value)"></td>
+      <td style="white-space:nowrap"><button class="icon-btn ${p.doc?'hasdoc':''}" title="เอกสารแนบ" onclick="docModal('${p.id}')">📎</button><button class="icon-btn" title="ลบ" onclick="delPay('${p.id}')">🗑️</button></td></tr>`;});
+  });
+  el.innerHTML=`<div class="panel">
+    <div class="ph"><h2>💰 เงินที่สั่ง <span class="sub">แยกตามเดือน</span></h2>
+      <div class="tools"><button class="btn btn-sm" onclick="exportPays()">⬇︎ CSV</button><button class="btn btn-primary btn-sm" onclick="addPay()">+ เพิ่มรายการเงิน</button></div></div>
+    <div class="scroll"><table><thead><tr><th style="width:150px">วันที่</th><th>รายการ / รอบ</th><th class="r" style="width:140px">จำนวนเงิน</th><th>แนบ</th></tr></thead>
+    <tbody>${pays.length? rows+`<tr class="foot-row"><td colspan="2">รวมทั้งหมดทุกเดือน</td><td class="money">${baht(total)}</td><td></td></tr>` : `<tr><td colspan="4"><div class="empty">ยังไม่มีรายการเงิน — กด “+ เพิ่มรายการเงิน”</div></td></tr>`}</tbody></table></div></div>`;
 }
+function docModal(id){const p=state.payments.find(x=>x.id===id);if(!p)return;
+  openModal(`<div class="mh"><h3>📎 เอกสารแนบ</h3><button class="x" onclick="closeModal()">×</button></div>
+   <div class="mb"><div class="field"><label>ลิงก์เอกสาร (รูปใบเสร็จ / PDF / Google Drive)</label><input id="doc-url" value="${esc(p.doc||'')}" placeholder="วางลิงก์ที่นี่"></div>
+   ${p.doc?`<a class="btn btn-sm" href="${esc(p.doc)}" target="_blank" style="margin-top:2px">🔗 เปิดเอกสาร</a>`:''}
+   <div class="hint" style="margin-top:10px">อัปรูป/ไฟล์ไว้ในมือถือ หรือ Google Drive/รูปภาพ แล้วก็อปลิงก์มาวาง</div></div>
+   <div class="mf"><button class="btn" onclick="closeModal()">ปิด</button><button class="btn btn-primary" onclick="saveDoc('${id}')">บันทึก</button></div>`);
+  setTimeout(()=>document.getElementById("doc-url").focus(),50);}
+function saveDoc(id){const p=state.payments.find(x=>x.id===id);if(!p)return;p.doc=document.getElementById("doc-url").value.trim();save();closeModal();toast(p.doc?"แนบเอกสารแล้ว":"ลบเอกสารแล้ว");go('pays');}
 
 /* ===== data funcs ===== */
-function mSet(id,f,v){const m=matById(id);if(!m)return;if(f==='qty'||f==='reorder'||f==='cost')m[f]=Math.max(0,parseFloat(v)||0);else m[f]=v;save();if(f==='qty'||f==='reorder')refreshAlert();}
+function mSet(id,f,v){const m=matById(id);if(!m)return;if(f==='qty'||f==='reorder')m[f]=Math.max(0,parseFloat(v)||0);else m[f]=v;save();if(f==='qty'||f==='reorder')refreshAlert();}
 function addMat(){state.materials.push({id:uid('T'),name:'',plant:'',qty:0,unit:'',reorder:0});save();go('mats');setTimeout(()=>{const i=document.querySelectorAll('#view tr .cell.name');if(i.length)i[(state.materials.length-1)*3]&&i[(state.materials.length-1)*3].focus();},60);}
 function delMat(id){state.materials=state.materials.filter(m=>m.id!==id);save();go('mats');toast("ลบวัตถุดิบแล้ว");}
 function receiveMat(id){const m=matById(id);if(!m)return;
@@ -397,14 +415,13 @@ function openProduce(){
      <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px">ใช้วัตถุดิบ (ต่อ 1 ชิ้น)</label>
      <div id="pr-uses"></div>
      <button class="btn btn-sm" style="margin-top:2px" onclick="addProdUse()">+ เพิ่มวัตถุดิบ</button>
-     <div class="field" style="margin-top:12px"><label>ค่าจ้างผลิต/ชิ้น (บาท)</label><input id="pr-labor" type="number" step="any" placeholder="0" oninput="prCalc()"></div>
      <div class="prev" id="pr-prev"></div>
    </div>
    <div class="mf"><button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn btn-primary" onclick="doProduce()">✓ ผลิต</button></div>`);
   renderProdUses();setTimeout(()=>document.getElementById("pr-name").focus(),50);
 }
-function getRecipe(name){const r=state.recipes[name];if(!r)return null;if(Array.isArray(r))return{uses:r,labor:0};return{uses:r.uses||[],labor:r.labor||0};}
-function onProdName(){const name=(document.getElementById("pr-name").value||'').trim();const r=getRecipe(name);if(r&&r.uses.length){prodUses=r.uses.map(u=>({matId:u.matId,per:u.per}));const lb=document.getElementById("pr-labor");if(lb)lb.value=r.labor||'';renderProdUses();}}
+function getRecipe(name){const r=state.recipes[name];if(!r)return null;if(Array.isArray(r))return{uses:r};return{uses:r.uses||[]};}
+function onProdName(){const name=(document.getElementById("pr-name").value||'').trim();const r=getRecipe(name);if(r&&r.uses.length){prodUses=r.uses.map(u=>({matId:u.matId,per:u.per}));renderProdUses();}}
 function matOptions(sel){return state.materials.map(m=>`<option value="${m.id}" ${m.id===sel?'selected':''}>${esc(m.name)} (${esc(m.unit)})</option>`).join("");}
 function renderProdUses(){document.getElementById("pr-uses").innerHTML=prodUses.map((u,i)=>`<div class="userow">
    <select onchange="prodUses[${i}].matId=this.value;prCalc()">${matOptions(u.matId)}</select>
@@ -412,28 +429,19 @@ function renderProdUses(){document.getElementById("pr-uses").innerHTML=prodUses.
    <button class="icon-btn" onclick="rmProdUse(${i})" ${prodUses.length<=1?'style="visibility:hidden"':''}>✕</button></div>`).join("");prCalc();}
 function addProdUse(){prodUses.push({matId:state.materials[0].id,per:0});renderProdUses();}
 function rmProdUse(i){prodUses.splice(i,1);renderProdUses();}
-function prCalc(){const qty=Math.max(0,parseFloat((document.getElementById("pr-qty")||{}).value)||0);const name=((document.getElementById("pr-name")||{}).value||'').trim();
-  const labor=Math.max(0,parseFloat((document.getElementById("pr-labor")||{}).value)||0);
-  let h="",matCost=0;
-  prodUses.forEach(u=>{const m=matById(u.matId);if(!m)return;const used=qty*(u.per||0);const after=(m.qty||0)-used;const bad=used>(m.qty||0);const c=used*(m.cost||0);matCost+=c;
-    h+=`<div>${esc(m.name)}: ใช้ <b>${fmt(used)}</b> ${esc(m.unit)} · เหลือ <b class="${bad?'bad':''}">${fmt(after)}</b>${bad?' ⚠️ไม่พอ':''}${m.cost?` · <span style="color:var(--ink2)">฿${fmt(c)}</span>`:''}</div>`;});
-  const laborCost=qty*labor;const total=matCost+laborCost;
-  h+=`<div style="margin-top:5px">ได้สินค้า <b>${esc(name||'—')} +${fmt(qty)}</b> เข้าสต๊อกสำเร็จรูป</div>`;
-  h+=`<div style="margin-top:7px;border-top:1px solid #e4d9c9;padding-top:7px">💰 ต้นทุนรอบนี้: ค่าวัตถุดิบ ฿${fmt(matCost)} + ค่าจ้าง ฿${fmt(laborCost)} = <b style="color:var(--accent)">฿${fmt(total)}</b><div style="color:var(--ink2);font-size:12px">จะบันทึกเข้า “เงินที่สั่ง” ให้อัตโนมัติ</div></div>`;
-  const p=document.getElementById("pr-prev");if(p)p.innerHTML=h;}
+function prCalc(){const qty=Math.max(0,parseFloat((document.getElementById("pr-qty")||{}).value)||0);const name=((document.getElementById("pr-name")||{}).value||'').trim();let h="";
+  prodUses.forEach(u=>{const m=matById(u.matId);if(!m)return;const used=qty*(u.per||0);const after=(m.qty||0)-used;const bad=used>(m.qty||0);h+=`<div>${esc(m.name)}: ใช้ <b>${fmt(used)}</b> ${esc(m.unit)} · เหลือ <b class="${bad?'bad':''}">${fmt(after)}</b>${bad?' ⚠️ไม่พอ':''}</div>`;});
+  h+=`<div style="margin-top:5px">ได้สินค้า <b>${esc(name||'—')} +${fmt(qty)}</b> เข้าสต๊อกสำเร็จรูป</div>`;const p=document.getElementById("pr-prev");if(p)p.innerHTML=h;}
 function doProduce(){
   const name=(document.getElementById("pr-name").value||'').trim();const qty=Math.max(0,parseFloat(document.getElementById("pr-qty").value)||0);const unit=(document.getElementById("pr-unit").value||'').trim()||'ชิ้น';
-  const labor=Math.max(0,parseFloat(document.getElementById("pr-labor").value)||0);
   if(!name){toast("ใส่ชื่อสินค้าก่อน",true);return;}if(qty<=0){toast("ใส่จำนวนที่ผลิต",true);return;}
   for(const u of prodUses){const m=matById(u.matId);if(!m)continue;if(qty*(u.per||0)>(m.qty||0)){toast(`${m.name} ไม่พอ (เหลือ ${fmt(m.qty)} ${m.unit})`,true);return;}}
-  const uses=[];let matCost=0;
-  prodUses.forEach(u=>{const m=matById(u.matId);if(!m||!(u.per>0))return;const used=qty*u.per;m.qty=Math.max(0,(m.qty||0)-used);const c=used*(m.cost||0);matCost+=c;uses.push({name:m.name,used,unit:m.unit,cost:c});});
-  const laborCost=qty*labor;const total=Math.round((matCost+laborCost)*100)/100;
+  const uses=[];
+  prodUses.forEach(u=>{const m=matById(u.matId);if(!m||!(u.per>0))return;const used=qty*u.per;m.qty=Math.max(0,(m.qty||0)-used);uses.push({name:m.name,used,unit:m.unit});});
   let f=finByName(name);if(f){f.qty=(f.qty||0)+qty;}else{state.finished.push({id:uid('F'),name,qty,unit,reorder:0});}
-  state.recipes[name]={uses:prodUses.filter(u=>u.per>0).map(u=>({matId:u.matId,per:u.per})),labor};
-  state.productions.push({id:uid('P'),date:new Date().toISOString().slice(0,10),product:name,qty,unit,uses,labor,cost:total});
-  if(total>0) state.payments.push({id:uid('M'),date:new Date().toISOString().slice(0,10),note:`ต้นทุนผลิต ${name} ${fmt(qty)} ${unit}`,amount:total,auto:true});
-  save();closeModal();toast(`ผลิตแล้ว — ต้นทุนรอบนี้ ฿${fmt(total)} บันทึกเข้าเงินที่สั่งแล้ว`);go(current==='mats'||current==='fin'||current==='produce'?current:'produce');
+  state.recipes[name]={uses:prodUses.filter(u=>u.per>0).map(u=>({matId:u.matId,per:u.per}))};
+  state.productions.push({id:uid('P'),date:new Date().toISOString().slice(0,10),product:name,qty,unit,uses});
+  save();closeModal();toast("ผลิตแล้ว — หักวัตถุดิบ + เพิ่มสินค้าให้แล้ว");go(current==='mats'||current==='fin'||current==='produce'?current:'produce');
 }
 
 /* ===== เงิน ===== */
@@ -447,7 +455,7 @@ function exportMats(){const r=[["วัตถุดิบ","โรงงาน",
 function exportFin(){const r=[["สินค้า","คงเหลือ","หน่วย","เตือน≤","สถานะ"]];state.finished.forEach(f=>r.push([f.name,f.qty||0,f.unit||'',f.reorder||0,stat(f).k]));dl("antheara-สินค้าสำเร็จรูป.csv",r);}
 function exportProd(){const r=[["วันที่","สินค้า","ผลิต","หน่วย","ใช้วัตถุดิบ"]];state.productions.forEach(p=>r.push([p.date,p.product,p.qty,p.unit,(p.uses||[]).map(u=>u.name+" "+u.used+" "+u.unit).join(" | ")]));dl("antheara-ประวัติการผลิต.csv",r);}
 function exportWh(){const r=[["สินค้า","คงเหลือ","หน่วย","เตือน≤","สถานะ"]];state.warehouse.forEach(w=>r.push([w.name,w.qty||0,w.unit||'',w.reorder||0,stat(w).k]));dl("antheara-คลังรังสิต.csv",r);}
-function exportPays(){const r=[["วันที่","รายการ/รอบ","จำนวนเงิน"]];state.payments.forEach(p=>r.push([p.date||'',p.note||'',p.amount||0]));dl("antheara-เงินสั่ง.csv",r);}
+function exportPays(){const r=[["วันที่","รายการ/รอบ","จำนวนเงิน","เอกสาร"]];const s=[...state.payments].sort((a,b)=>(b.date||'').localeCompare(a.date||''));s.forEach(p=>r.push([p.date||'',p.note||'',p.amount||0,p.doc||'']));dl("antheara-เงินสั่ง.csv",r);}
 
 /* ===== sidebar / modal / toast ===== */
 function openSidebar(){document.getElementById("sidebar").classList.add("open");document.getElementById("backdrop").classList.add("show");}
