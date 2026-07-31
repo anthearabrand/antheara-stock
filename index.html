@@ -242,6 +242,13 @@ function finTable(){
 }
 
 /* ===== PAGES ===== */
+function sumTable(title,arr,route){
+  const named=arr.filter(x=>x.name&&x.name.trim());
+  return `<div class="panel">
+    <div class="ph"><h2>${title} <span class="sub">${named.length} รายการ</span></h2><div class="tools"><button class="btn btn-sm" onclick="go('${route}')">จัดการ →</button></div></div>
+    <div class="scroll"><table><thead><tr><th>ชื่อ</th><th class="r">คงเหลือ</th><th>สถานะ</th></tr></thead>
+    <tbody>${named.length? named.map(x=>{const s=stat(x);return `<tr><td><b>${esc(x.name)}</b></td><td class="r"><b>${fmt(x.qty)}</b> <span class="muted" style="color:var(--ink2)">${esc(x.unit)}</span></td><td><span class="chip ${s.c}">${s.k}</span></td></tr>`;}).join("") : `<tr><td colspan="3"><div class="empty">— ยังไม่มี —</div></td></tr>`}</tbody></table></div></div>`;
+}
 function renderDash(el){
   const money=state.payments.reduce((s,p)=>s+(p.amount||0),0);
   const low=lowItems();
@@ -261,7 +268,10 @@ function renderDash(el){
       <div class="ph"><h2>⚠️ ต้องสั่งเพิ่ม (ใกล้หมด/หมด)</h2></div>
       <div class="scroll"><table><thead><tr><th>รายการ</th><th>ประเภท</th><th class="r">คงเหลือ</th><th class="r">เตือน≤</th><th>สถานะ</th></tr></thead>
       <tbody>${low.length? low.map(x=>{const s=stat(x);return `<tr><td><b>${esc(x.name)||'—'}</b></td><td><span class="tag">${x._t}</span></td><td class="r"><b>${fmt(x.qty)}</b> ${esc(x.unit)}</td><td class="r muted">${fmt(x.reorder)}</td><td><span class="chip ${s.c}">${s.k}</span></td></tr>`;}).join("") : `<tr><td colspan="5"><div class="empty">✓ ของครบทุกอย่าง ยังไม่มีอะไรใกล้หมด</div></td></tr>`}</tbody></table></div>
-    </div>`;
+    </div>
+    ${sumTable("🧪 วัตถุดิบที่โรงงาน",state.materials,'mats')}
+    ${sumTable("📦 สินค้าสำเร็จรูป (ที่โรงงาน)",state.finished,'fin')}
+    ${sumTable("🏬 คลังรังสิต (พร้อมขาย)",state.warehouse,'wh')}`;
 }
 function renderMats(el){
   el.innerHTML=`<div class="panel">
