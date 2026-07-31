@@ -3,1493 +3,301 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ANTHEARA Stock &amp; Production</title>
+<title>ANTHEARA · สต๊อก</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&family=Cormorant+Garamond:wght@600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#faf6f0; --card:#ffffff; --ink:#3a2318; --ink2:#8a7360;
-    --line:#ece2d5; --accent:#9a6238; --accent-soft:#f4ece0;
-    --dark:#3d2419; --cream:#ece4d1;
+    --bg:#faf6f0; --card:#fff; --ink:#3a2318; --ink2:#8a7360; --line:#ece2d5;
+    --accent:#9a6238; --accent-soft:#f4ece0; --dark:#3d2419; --cream:#ece4d1;
     --ok:#4a7a43; --warn:#bd7a2c; --danger:#b23f2e;
-    --ok-soft:#e8f0e2; --warn-soft:#f7ead4; --danger-soft:#f6e3de; --blue-soft:#f1e7d8;
-    --radius:14px; --shadow:0 4px 18px rgba(61,36,25,.08);
-    --sidebar-w:230px; --topbar-h:60px;
+    --ok-soft:#e8f0e2; --warn-soft:#f7ead4; --danger-soft:#f6e3de;
+    --radius:16px; --shadow:0 4px 20px rgba(61,36,25,.07);
   }
   *{box-sizing:border-box;margin:0;padding:0}
-  html,body{height:100%}
-  body{font-family:"Prompt",sans-serif;background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
-  h1,h2,h3,.head{font-family:"Prompt",sans-serif;letter-spacing:-.01em}
-  .num{font-family:"Prompt",sans-serif;font-variant-numeric:tabular-nums}
-  button{font-family:"Prompt";cursor:pointer}
+  body{font-family:"Prompt",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wordmark{font-family:"Cormorant Garamond",serif}
+  button,input,select{font-family:"Prompt";font-size:15px}
+  button{cursor:pointer}
 
-  /* ===== LAYOUT ===== */
-  .app{display:flex;min-height:100vh}
-  .sidebar{width:var(--sidebar-w);background:var(--dark);position:fixed;top:0;left:0;bottom:0;display:flex;flex-direction:column;z-index:40;transition:transform .22s ease}
-  .brand{padding:24px 22px 20px;border-bottom:1px solid rgba(236,228,209,.14)}
-  .brand .wordmark{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:32px;line-height:1;color:var(--cream);letter-spacing:.5px}
-  .brand .brand-sub{font-weight:500;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:rgba(236,228,209,.55);margin-top:7px}
-  .nav{padding:14px 12px;overflow-y:auto;flex:1}
-  .nav a{display:flex;align-items:center;gap:11px;padding:11px 13px;border-radius:11px;color:rgba(236,228,209,.72);font-weight:500;font-size:14.5px;margin-bottom:3px;transition:.12s}
-  .nav a .ic{font-size:18px;width:22px;text-align:center}
-  .nav a:hover{background:rgba(236,228,209,.08);color:var(--cream)}
-  .nav a.active{background:rgba(236,228,209,.15);color:var(--cream);font-weight:600}
-  .nav a .dot{margin-left:auto;background:var(--danger);color:#fff;font-size:11px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:none;align-items:center;justify-content:center;padding:0 5px}
-  .nav a .dot.show{display:inline-flex}
-  .sb-foot{padding:14px 18px;border-top:1px solid rgba(236,228,209,.14);font-size:11.5px;color:rgba(236,228,209,.55)}
-  .sb-foot .btn{background:transparent;border-color:rgba(236,228,209,.28);color:rgba(236,228,209,.85)}
-  .sb-foot .btn:hover{background:rgba(236,228,209,.1);border-color:rgba(236,228,209,.45);color:var(--cream)}
-  .sync{display:flex;align-items:center;gap:6px;font-size:11.5px;font-weight:500;color:rgba(236,228,209,.6)}
-  .sync::before{content:"";width:7px;height:7px;border-radius:50%;background:rgba(236,228,209,.4);flex:none}
-  .sync.ok::before{background:#7fbf6a} .sync.ok{color:rgba(236,228,209,.75)}
+  /* ===== TOP BAR ===== */
+  .top{background:var(--dark);color:var(--cream);padding:16px 20px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:20}
+  .top .brand{font-family:"Cormorant Garamond",serif;font-weight:700;font-size:26px;line-height:1}
+  .top .brand small{font-family:"Prompt";font-weight:500;font-size:10px;letter-spacing:.14em;display:block;color:rgba(236,228,209,.6);margin-top:2px}
+  .sync{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:500;color:rgba(236,228,209,.7)}
+  .sync::before{content:"";width:8px;height:8px;border-radius:50%;background:rgba(236,228,209,.4)}
+  .sync.ok::before{background:#7fbf6a}.sync.ok{color:rgba(236,228,209,.85)}
   .sync.saving::before{background:#e0b24a;animation:pulse 1s infinite}
-  .sync.err::before{background:#d98d6a} .sync.err{color:#e6b79c}
+  .sync.err::before{background:#d98d6a}.sync.err{color:#eab79c}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-  .main{flex:1;margin-left:var(--sidebar-w);display:flex;flex-direction:column;min-width:0}
-  .topbar{height:var(--topbar-h);background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 22px;position:sticky;top:0;z-index:30}
-  .topbar .burger{display:none;background:none;border:0;font-size:22px;color:var(--ink)}
-  .topbar h1{font-size:19px;font-weight:700}
-  .topbar .alerts{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600;color:var(--warn);background:var(--warn-soft);padding:7px 13px;border-radius:999px}
-  .topbar .alerts.none{color:var(--ok);background:var(--ok-soft)}
-  .content{padding:24px 22px;max-width:1180px;width:100%}
+  .wrap{max-width:820px;margin:0 auto;padding:18px 16px 60px}
 
-  /* backdrop for mobile sidebar */
-  .backdrop{display:none;position:fixed;inset:0;background:rgba(26,32,50,.4);z-index:35}
-  .backdrop.show{display:block}
+  /* ===== STATS ===== */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+  .stat .k{font-size:13px;color:var(--ink2);font-weight:500}
+  .stat .v{font-size:28px;font-weight:700;margin-top:2px}
+  .stat.warn .v{color:var(--warn)} .stat.danger .v{color:var(--danger)}
 
-  /* ===== COMPONENTS ===== */
-  .page-head{margin-bottom:18px}
-  .page-head p{color:var(--ink2);font-size:14px;margin-top:2px}
-  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-  .kcard{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
-  .kcard .k{font-size:13px;color:var(--ink2);font-weight:600}
-  .kcard .v{font-size:25px;font-weight:700;font-family:"Prompt";margin-top:3px}
-  .kcard .v small{font-size:13px;color:var(--ink2);font-weight:500}
-
-  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;margin-bottom:18px}
-  .panel-head{display:flex;align-items:center;gap:12px;padding:15px 18px;border-bottom:1px solid var(--line)}
-  .panel-head h2{font-size:16px;font-weight:700}
-  .panel-head .tools{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
-  .panel-body{padding:6px 4px}
-
-  table{width:100%;border-collapse:collapse;font-size:14px}
-  thead th{text-align:left;font-size:12px;color:var(--ink2);font-weight:600;padding:11px 16px;border-bottom:1px solid var(--line);white-space:nowrap}
-  tbody td{padding:12px 16px;border-bottom:1px solid #f1f3f8;vertical-align:middle}
-  tbody tr:last-child td{border-bottom:0}
-  td.r,th.r{text-align:right}
-  .qty{font-family:"Prompt";font-weight:600;font-variant-numeric:tabular-nums}
-  .muted{color:var(--ink2);font-size:12.5px}
-
-  .chip{font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;display:inline-block}
-  .c-ok{background:var(--ok-soft);color:var(--ok)} .c-warn{background:var(--warn-soft);color:var(--warn)}
-  .c-danger{background:var(--danger-soft);color:var(--danger)} .c-blue{background:var(--blue-soft);color:var(--accent)}
-  .c-gray{background:#f1f3f9;color:var(--ink2)}
-  .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:#f1f3f9;color:var(--ink2)}
-
-  .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:10px;font-weight:600;font-size:13.5px;border:1px solid var(--line);background:#fff;color:var(--ink);transition:.12s}
-  .btn:hover{border-color:#cdd3e2;background:#fafbfe}
-  .btn-primary{background:var(--dark);color:#fff;border-color:var(--dark)}
+  /* ===== TOOLBAR ===== */
+  .bar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
+  .search{flex:1;min-width:180px;position:relative}
+  .search input{width:100%;padding:12px 14px 12px 40px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}
+  .search input:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .search::before{content:"🔍";position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.5}
+  .btn{display:inline-flex;align-items:center;gap:7px;padding:11px 18px;border-radius:12px;font-weight:600;font-size:14.5px;border:1px solid var(--line);background:#fff;color:var(--ink);transition:.12s;white-space:nowrap}
+  .btn:hover{border-color:#d8c9b6;background:#fdfbf8}
+  .btn-primary{background:var(--dark);color:var(--cream);border-color:var(--dark)}
   .btn-primary:hover{background:var(--accent);border-color:var(--accent);color:#fff}
-  .btn-sm{padding:6px 11px;font-size:12.5px}
+  .btn-sm{padding:8px 13px;font-size:13.5px;border-radius:10px}
 
-  .empty{padding:40px 20px;text-align:center;color:var(--ink2)}
-  .empty .big{font-size:34px;margin-bottom:8px}
+  /* ===== ITEM LIST ===== */
+  .list{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #f4ece2}
+  .item:last-child{border-bottom:0}
+  .item .info{flex:1;min-width:0}
+  .item .nm{font-weight:600;font-size:16px}
+  .item .meta{font-size:12.5px;color:var(--ink2);margin-top:1px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+  .tag{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:var(--accent-soft);color:var(--accent)}
+  .chip{font-size:11px;font-weight:700;padding:2px 9px;border-radius:999px}
+  .c-ok{background:var(--ok-soft);color:var(--ok)}.c-warn{background:var(--warn-soft);color:var(--warn)}.c-danger{background:var(--danger-soft);color:var(--danger)}
 
-  .placeholder{background:var(--card);border:1px dashed #cdd3e2;border-radius:var(--radius);padding:44px 24px;text-align:center;color:var(--ink2)}
-  .placeholder .big{font-size:40px;margin-bottom:10px}
-  .placeholder h3{color:var(--ink);font-size:18px;margin-bottom:6px}
-  .placeholder code{background:#eef1f7;padding:2px 8px;border-radius:6px;font-size:13px;color:var(--accent)}
+  /* qty stepper */
+  .qtybox{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#fff}
+  .qtybox button{width:38px;height:42px;border:0;background:#faf6f0;color:var(--ink);font-size:20px;font-weight:600;line-height:1}
+  .qtybox button:hover{background:var(--accent-soft);color:var(--accent)}
+  .qtybox input{width:74px;height:42px;border:0;border-left:1px solid var(--line);border-right:1px solid var(--line);text-align:center;font-weight:700;font-size:16px;color:var(--ink);background:#fff;-moz-appearance:textfield}
+  .qtybox input::-webkit-outer-spin-button,.qtybox input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .qtybox input:focus{outline:0;background:var(--accent-soft)}
+  .unit{font-size:13px;color:var(--ink2);min-width:34px}
+  .icon-btn{background:none;border:0;font-size:16px;padding:6px 7px;border-radius:8px;color:var(--ink2)}
+  .icon-btn:hover{background:#f4ece2;color:var(--ink)}
+  .icon-btn.danger:hover{background:var(--danger-soft);color:var(--danger)}
 
-  /* ===== payment timeline ===== */
-  .tl{display:flex;gap:8px;margin-top:6px}
-  .tl .seg{flex:1;text-align:center;font-size:12px;font-weight:600;padding:9px 6px;border-radius:9px;background:#f1f3f9;color:var(--ink2);line-height:1.35}
-  .tl .seg.done{background:var(--ok-soft);color:var(--ok)}
-  .tl .seg.now{background:var(--warn-soft);color:var(--warn)}
-  @media(max-width:520px){ .tl{flex-direction:column} }
+  .empty{padding:44px 20px;text-align:center;color:var(--ink2)}
+  .empty .big{font-size:38px;margin-bottom:8px}
 
-  /* ===== MODAL / FORM ===== */
-  .modal-bg{display:none;position:fixed;inset:0;background:rgba(26,32,50,.5);z-index:60;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+  .list-head{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid var(--line);font-size:13px;color:var(--ink2);font-weight:600;background:#fdfbf8}
+
+  /* ===== MODAL ===== */
+  .modal-bg{display:none;position:fixed;inset:0;background:rgba(61,36,25,.5);z-index:60;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
   .modal-bg.show{display:flex}
-  .modal{background:#fff;border-radius:16px;box-shadow:0 24px 70px rgba(26,32,50,.28);width:100%;max-width:440px;overflow:hidden;animation:pop .16s ease}
+  .modal{background:#fff;border-radius:18px;box-shadow:0 24px 70px rgba(61,36,25,.3);width:100%;max-width:420px;overflow:hidden;animation:pop .16s ease}
   @keyframes pop{from{transform:translateY(8px);opacity:.6}to{transform:none;opacity:1}}
-  .modal-head{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
-  .modal-head h3{font-size:17px;font-weight:700}
-  .modal-head .x{margin-left:auto;background:none;border:0;font-size:22px;color:var(--ink2);line-height:1;padding:0 4px}
-  .modal-body{padding:18px 20px}
-  .modal-foot{display:flex;gap:10px;padding:14px 20px;border-top:1px solid var(--line);background:#fbfcfe}
-  .modal-foot .btn{flex:1;justify-content:center}
-  .field{margin-bottom:14px}
-  .field:last-child{margin-bottom:0}
-  .field label{display:block;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:6px}
-  .field label .req{color:var(--danger)}
-  .field input,.field select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font-family:"Prompt";font-size:14.5px;color:var(--ink);background:#fff;transition:.12s}
+  .mh{display:flex;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
+  .mh h3{font-size:18px;font-weight:700}.mh .x{margin-left:auto;background:none;border:0;font-size:22px;color:var(--ink2)}
+  .mb{padding:18px 20px}
+  .mf{display:flex;gap:10px;padding:14px 20px;border-top:1px solid var(--line);background:#fdfbf8}
+  .mf .btn{flex:1;justify-content:center}
+  .field{margin-bottom:14px}.field:last-child{margin-bottom:0}
+  .field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px}
+  .field input,.field select{width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:11px;background:#fff;color:var(--ink)}
   .field input:focus,.field select:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
   .field .hint{font-size:12px;color:var(--ink2);margin-top:5px}
-  .field.err input,.field.err select{border-color:var(--danger)}
   .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-  .icon-btn{background:none;border:0;font-size:16px;padding:5px 8px;border-radius:8px;color:var(--ink2)}
-  .icon-btn:hover{background:#f1f3f9;color:var(--ink)}
-  .icon-btn.danger:hover{background:var(--danger-soft);color:var(--danger)}
-  .row-actions{display:flex;gap:2px;justify-content:flex-end}
-  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;padding:12px 20px;border-radius:12px;font-weight:600;font-size:14px;z-index:80;box-shadow:0 12px 34px rgba(0,0,0,.25);opacity:0;transition:.2s;pointer-events:none}
-  .toast.show{opacity:1;bottom:34px}
-  .toast.err{background:var(--danger)}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--dark);color:var(--cream);padding:12px 20px;border-radius:12px;font-weight:600;font-size:14px;z-index:80;box-shadow:0 12px 34px rgba(0,0,0,.25);opacity:0;transition:.2s;pointer-events:none}
+  .toast.show{opacity:1;bottom:34px}.toast.err{background:var(--danger);color:#fff}
 
-  @media(max-width:900px){ .cards{grid-template-columns:repeat(2,1fr)} }
-  @media(max-width:760px){
-    .sidebar{transform:translateX(-100%)}
-    .sidebar.open{transform:translateX(0)}
-    .main{margin-left:0}
-    .topbar .burger{display:block}
+  .foot{text-align:center;margin-top:20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
+  @media(max-width:520px){
+    .stats{grid-template-columns:repeat(3,1fr);gap:8px}
+    .stat{padding:12px 10px}.stat .v{font-size:22px}.stat .k{font-size:11px}
+    .item{gap:8px;padding:12px}
+    .item .nm{font-size:15px}
+    .qtybox input{width:56px}.qtybox button{width:34px}
+    .list-head{display:none}
   }
-  @media(max-width:480px){ .cards{grid-template-columns:1fr 1fr} .content{padding:18px 14px} }
 </style>
 </head>
 <body>
-<div class="app">
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <div class="wordmark">Anthēara</div>
-      <div class="brand-sub">Stock &amp; Production</div>
-    </div>
-    <nav class="nav" id="nav">
-      <a data-route="dashboard"><span class="ic">📊</span> แดชบอร์ด<span class="dot" id="navDot"></span></a>
-      <a data-route="products"><span class="ic">📦</span> รายการของ</a>
-      <a data-route="locations"><span class="ic">🏢</span> คลัง &amp; โรงงาน</a>
-      <a data-route="purchase"><span class="ic">🛒</span> สั่งบรรจุภัณฑ์</a>
-      <a data-route="production"><span class="ic">🏭</span> งานผลิต</a>
-      <a data-route="history"><span class="ic">📜</span> ประวัติการเคลื่อนไหว</a>
-    </nav>
-    <div class="sb-foot">
-      <div id="syncStatus" class="sync" title="">กำลังเริ่มระบบ…</div>
-      <button class="btn btn-sm" style="width:100%;margin-top:10px;justify-content:center" onclick="zeroAll()">0️⃣ ตั้งยอดเป็น 0</button>
-      <button class="btn btn-sm" style="width:100%;margin-top:7px;justify-content:center" onclick="resetData()">🗑️ เริ่มข้อมูลใหม่</button>
-    </div>
-  </aside>
-  <div class="backdrop" id="backdrop"></div>
-  <div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
-  <div class="toast" id="toast"></div>
+<div class="top">
+  <div class="brand">Anthēara<small>สต๊อกสินค้า</small></div>
+  <div id="sync" class="sync">กำลังโหลด…</div>
+</div>
 
-  <!-- MAIN -->
-  <div class="main">
-    <header class="topbar">
-      <button class="burger" id="burger">☰</button>
-      <h1 id="pageTitle">แดชบอร์ด</h1>
-      <div class="alerts none" id="topAlert">✓ ของครบทุกรายการ</div>
-    </header>
-    <main class="content" id="view"><!-- rendered by JS --></main>
+<div class="wrap">
+  <div class="stats">
+    <div class="stat"><div class="k">รายการทั้งหมด</div><div class="v" id="s-all">—</div></div>
+    <div class="stat warn"><div class="k">ใกล้หมด</div><div class="v" id="s-low">—</div></div>
+    <div class="stat danger"><div class="k">ของหมด</div><div class="v" id="s-out">—</div></div>
+  </div>
+
+  <div class="bar">
+    <div class="search"><input id="q" placeholder="ค้นหาสินค้า…" oninput="render()"></div>
+    <button class="btn btn-primary" onclick="editItem()">+ เพิ่มสินค้า</button>
+  </div>
+
+  <div id="view"></div>
+
+  <div class="foot">
+    <button class="btn btn-sm" onclick="exportCSV()">⬇︎ ออกไฟล์ CSV</button>
+    <button class="btn btn-sm" onclick="zeroAll()">ตั้งยอดทั้งหมดเป็น 0</button>
   </div>
 </div>
+
+<div class="modal-bg" id="modalBg"><div class="modal" id="modal"></div></div>
+<div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 "use strict";
-/* =========================================================
-   ANTHEARA Stock & Production — core
-   ข้อมูลเก็บบน Supabase (sync ทุกเครื่อง) + แคช localStorage กันออฟไลน์
-   ========================================================= */
+/* ============ Supabase (โปรเจกต์ anther) ============ */
 const KEY = "antheara_stock";
-// Supabase โปรเจกต์ "anther" (ref: hddwywofpqqlufslshaq) — anon key เปิดเผยได้ปกติ (ป้องกันด้วย RLS+RPC)
 const SUPABASE_URL = "https://hddwywofpqqlufslshaq.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkZHd5d29mcHFxbHVmc2xzaGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTMwNTQsImV4cCI6MjEwMDg4OTA1NH0.MqxmX9uv78NkVw7c-E9hZfONt19yW3HX1-XpOv_4AMw";
 const sb = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-/* ---------- seed data (ตัวอย่างเริ่มต้น) ---------- */
-function seed(){
-  return {
-    locations:[
-      {id:"L1", name:"คลังกลาง", kind:"คลังเรา"},
-      {id:"L2", name:"โรงงานสครับ", kind:"โรงงาน"}
-    ],
-    products:[
-      {id:"P1", name:"สครับ aha 250g", category:"สินค้าสำเร็จรูป", unit:"ชิ้น", cost:95, reorderPoint:2000,
-        recipe:{contentId:"P3", contentPerUnit:0.6, packagingId:"P2", packagingPerUnit:1}},
-      {id:"P2", name:"กระปุก 250ml", category:"บรรจุภัณฑ์", unit:"ใบ", cost:8, reorderPoint:5000, recipe:null},
-      {id:"P3", name:"เนื้อสครับ", category:"เนื้อ/วัตถุดิบ", unit:"โล", cost:120, reorderPoint:500, recipe:null}
-    ],
-    movements:[
-      // ตัวอย่างเริ่มต้น: กระปุกเข้าคลังกลาง แล้วย้ายไปโรงงาน + เนื้อเข้าโรงงาน
-      {id:"M1", productId:"P2", locationId:"L1", kind:"รับเข้า", qty:50000, reason:"รับจากใบสั่ง", at:"2026-07-20T09:00:00"},
-      {id:"M2", productId:"P2", locationId:"L1", kind:"ตัดออก", qty:50000, reason:"ส่งเข้าโรงงาน", at:"2026-07-25T10:00:00"},
-      {id:"M3", productId:"P2", locationId:"L2", kind:"รับเข้า", qty:50000, reason:"รับจากคลังกลาง", at:"2026-07-25T10:00:00"},
-      {id:"M4", productId:"P3", locationId:"L2", kind:"รับเข้า", qty:30000, reason:"รับเนื้อเข้าโรงงาน", at:"2026-07-26T08:00:00"}
-    ],
-    purchaseOrders:[],
-    productionRuns:[],
-    _seeded:true
-  };
+let state = { items: [], _v: 2 };
+
+/* ---- แปลงข้อมูลเก่า (products+movements หลายที่) → แบบง่าย (items+qty) ---- */
+function migrate(s){
+  if(!s || typeof s!=="object") return { items:[], _v:2 };
+  if(Array.isArray(s.items)) return { items:s.items, _v:2, _legacy:s._legacy };
+  // ข้อมูลเก่า: รวมยอดคงเหลือทุกที่ต่อสินค้า
+  const bal = {};
+  (s.movements||[]).forEach(m=>{ bal[m.productId]=(bal[m.productId]||0)+(m.kind==="รับเข้า"?m.qty:-m.qty); });
+  const items = (s.products||[]).map(p=>({
+    id:p.id, name:p.name, category:p.category||"", unit:p.unit||"ชิ้น",
+    cost:p.cost||0, reorderPoint:p.reorderPoint||0, qty:Math.max(0, Math.round((bal[p.id]||0)*100)/100)
+  }));
+  // เก็บข้อมูลเดิมไว้กันหาย (ไม่แสดง แต่ไม่ลบ)
+  return { items, _v:2, _legacy:{products:s.products,movements:s.movements,locations:s.locations,purchaseOrders:s.purchaseOrders,productionRuns:s.productionRuns} };
 }
 
-/* ---------- state + Supabase sync ---------- */
-let state = { locations:[], products:[], movements:[], purchaseOrders:[], productionRuns:[] };
-function normalize(s){
-  s = s||{};
-  s.locations = s.locations||[]; s.products = s.products||[];
-  s.movements = s.movements||[]; s.purchaseOrders = s.purchaseOrders||[];
-  s.productionRuns = s.productionRuns||[];
-  return s;
-}
+/* ---- sync ---- */
+function setSync(t,c){ const e=document.getElementById("sync"); if(e){e.textContent=t;e.className="sync "+(c||"");} }
 function cacheLocal(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
-
-/* ตัวบอกสถานะซิงก์ (มุมล่างแถบข้าง) */
-function setSync(txt, cls){
-  const el = document.getElementById("syncStatus");
-  if(el){ el.textContent = txt; el.className = "sync " + (cls||""); }
-}
-
-/* บันทึกขึ้น Supabase (หน่วงรวบ 600ms) + แคชในเครื่องเสมอ */
-let _saveTimer=null, _saveBusy=false, _saveAgain=false;
-function save(){
-  cacheLocal();
-  setSync("กำลังบันทึก…","saving");
-  clearTimeout(_saveTimer);
-  _saveTimer = setTimeout(cloudSave, 600);
-}
-async function cloudSave(){
+let _t=null,_busy=false,_again=false;
+function save(){ cacheLocal(); setSync("กำลังบันทึก…","saving"); clearTimeout(_t); _t=setTimeout(cloud,600); }
+async function cloud(){
   if(!sb){ setSync("ออฟไลน์ (เก็บในเครื่อง)","err"); return; }
-  if(_saveBusy){ _saveAgain=true; return; }
-  _saveBusy=true;
-  try{
-    const { error } = await sb.rpc("rpc_stock_save", { p_data: state });
-    if(error) throw error;
-    setSync("บันทึกแล้ว ✓","ok");
-  }catch(e){
-    console.warn("บันทึกขึ้น Supabase ไม่ได้", e);
-    setSync("ออฟไลน์ (เก็บในเครื่อง)","err");
-  }
-  _saveBusy=false;
-  if(_saveAgain){ _saveAgain=false; cloudSave(); }
+  if(_busy){ _again=true; return; } _busy=true;
+  try{ const {error}=await sb.rpc("rpc_stock_save",{p_data:state}); if(error) throw error; setSync("บันทึกแล้ว ✓","ok"); }
+  catch(e){ console.warn(e); setSync("ออฟไลน์ (เก็บในเครื่อง)","err"); }
+  _busy=false; if(_again){_again=false;cloud();}
 }
-
-/* โหลด state ตอนเปิดแอป: จาก Supabase ก่อน ถ้าไม่ได้ใช้แคชในเครื่อง */
 async function boot(){
-  const view = document.getElementById("view");
-  view.innerHTML = `<div class="placeholder"><div class="big">🌿</div><h3>กำลังเชื่อมต่อ Supabase…</h3><p>โหลดข้อมูลล่าสุดของ ANTHEARA</p></div>`;
   setSync("กำลังโหลด…","saving");
-  // อ่านข้อมูลในเครื่อง (แคช) ไว้ก่อน
-  let localData=null;
-  try{ const raw=localStorage.getItem(KEY); if(raw) localData=normalize(JSON.parse(raw)); }catch(e){}
-  const localHasData = localData && ((localData.products&&localData.products.length) || (localData.movements&&localData.movements.length));
-
+  let localData=null; try{ const r=localStorage.getItem(KEY); if(r) localData=JSON.parse(r); }catch(e){}
   let loaded=false;
   if(sb){
     try{
-      const { data, error } = await sb.rpc("rpc_stock_load");
-      if(error) throw error;
-      const cloudHasData = data && ((data.products&&data.products.length) || (data.locations&&data.locations.length));
-      if(cloudHasData){
-        state = normalize(data); loaded=true; setSync("เชื่อมต่อแล้ว ✓","ok");
-      }else{
-        // คลาวด์ยังว่าง — ถ้ามีข้อมูลในเครื่องอยู่แล้ว อัปขึ้นคลาวด์ (ไม่ทับด้วยตัวอย่าง)
-        state = localHasData ? localData : seed();
-        await sb.rpc("rpc_stock_save", { p_data: state });
-        loaded=true; setSync(localHasData?"อัปข้อมูลขึ้นคลาวด์แล้ว ✓":"เริ่มข้อมูลใหม่บนคลาวด์ ✓","ok");
+      const {data,error}=await sb.rpc("rpc_stock_load"); if(error) throw error;
+      const has = data && (Array.isArray(data.items)? data.items.length : (data.products&&data.products.length));
+      if(has){ state=migrate(data); loaded=true; setSync("เชื่อมต่อแล้ว ✓","ok"); }
+      else {
+        state = (localData && (localData.items||localData.products)) ? migrate(localData) : {items:[],_v:2};
+        await sb.rpc("rpc_stock_save",{p_data:state}); loaded=true; setSync("เชื่อมต่อแล้ว ✓","ok");
       }
-    }catch(e){ console.warn("เชื่อมต่อ Supabase ไม่ได้", e); window._connErr = e; }
-  }else{ window._connErr = new Error("supabase-js ไม่โหลด (sb=null)"); }
-  if(!loaded){
-    // fallback ออฟไลน์: ใช้แคชในเครื่อง หรือ seed
-    state = localHasData ? localData : seed();
-    const em = ((window._connErr && (window._connErr.message||window._connErr.code)) || "") + "";
-    let why = "";
-    if(/fetch|networkerror|failed to fetch/i.test(em)) why = " (ต่อเน็ตไม่ได้)";
-    else if(/PGRST202|find the function|does not exist|schema cache|function/i.test(em)) why = " (ยังไม่พบฟังก์ชัน—รัน SQL?)";
-    else if(/jwt|apikey|invalid|401|permission|denied/i.test(em)) why = " (คีย์/สิทธิ์ผิด)";
-    else if(/sb=null|ไม่โหลด/i.test(em)) why = " (โหลดตัวเชื่อมไม่ได้)";
-    const el = document.getElementById("syncStatus"); if(el) el.title = em || "ไม่ทราบสาเหตุ";
-    setSync("ออฟไลน์"+why,"err");
+    }catch(e){ console.warn("Supabase:",e); }
   }
-  cacheLocal();
-  go("dashboard");
+  if(!loaded){ state = localData? migrate(localData) : {items:[],_v:2}; setSync("ออฟไลน์ (เก็บในเครื่อง)","err"); }
+  cacheLocal(); render();
 }
-function resetData(){
+
+/* ---- helpers ---- */
+const uid = ()=> "I"+Date.now().toString(36)+Math.floor(Math.random()*1000).toString(36);
+const fmt = n=> (Math.round((n||0)*100)/100).toLocaleString("th-TH");
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function statusOf(it){ const q=it.qty||0; if(q<=0) return {k:"หมด",c:"c-danger"}; if(q<=(it.reorderPoint||0)) return {k:"ใกล้หมด",c:"c-warn"}; return {k:"พอ",c:"c-ok"}; }
+
+/* ---- render ---- */
+function render(){
+  const all=state.items, low=all.filter(i=>{const q=i.qty||0;return q>0&&q<=(i.reorderPoint||0);}), out=all.filter(i=>(i.qty||0)<=0);
+  document.getElementById("s-all").textContent=all.length;
+  document.getElementById("s-low").textContent=low.length;
+  document.getElementById("s-out").textContent=out.length;
+  const term=(document.getElementById("q").value||"").trim().toLowerCase();
+  const shown = term? all.filter(i=>i.name.toLowerCase().includes(term)||(i.category||"").toLowerCase().includes(term)) : all;
+  const view=document.getElementById("view");
+  if(all.length===0){ view.innerHTML=`<div class="list"><div class="empty"><div class="big">📦</div>ยังไม่มีสินค้า — กด “+ เพิ่มสินค้า” เพื่อเริ่ม</div></div>`; return; }
+  if(shown.length===0){ view.innerHTML=`<div class="list"><div class="empty"><div class="big">🔍</div>ไม่พบ “${esc(term)}”</div></div>`; return; }
+  const rows = shown.map(it=>{ const st=statusOf(it);
+    return `<div class="item">
+      <div class="info">
+        <div class="nm">${esc(it.name)}</div>
+        <div class="meta">${it.category?`<span class="tag">${esc(it.category)}</span>`:""}<span class="chip ${st.c}">${st.k}</span>${it.reorderPoint?`<span>เตือนเมื่อ ≤ ${fmt(it.reorderPoint)}</span>`:""}</div>
+      </div>
+      <div class="qtybox">
+        <button onclick="bump('${it.id}',-1)">−</button>
+        <input type="number" step="any" value="${it.qty||0}" onchange="setQty('${it.id}',this.value)" onfocus="this.select()">
+        <button onclick="bump('${it.id}',1)">+</button>
+      </div>
+      <span class="unit">${esc(it.unit||"")}</span>
+      <button class="icon-btn" title="แก้ไข" onclick="editItem('${it.id}')">✏️</button>
+      <button class="icon-btn danger" title="ลบ" onclick="delItem('${it.id}')">🗑️</button>
+    </div>`;
+  }).join("");
+  view.innerHTML=`<div class="list"><div class="list-head">สินค้า (${shown.length}${term?` จาก ${all.length}`:""}) · พิมพ์จำนวนที่มีได้เลย</div>${rows}</div>`;
+}
+const byId = id=> state.items.find(i=>i.id===id);
+function setQty(id,val){ const it=byId(id); if(!it) return; it.qty=Math.max(0, parseFloat(val)||0); save(); render(); }
+function bump(id,d){ const it=byId(id); if(!it) return; it.qty=Math.max(0,(it.qty||0)+d); save(); render(); }
+
+/* ---- add / edit ---- */
+const UNITS=["ชิ้น","ใบ","ขวด","โล","กรัม","กล่อง","หลอด","แพ็ค"];
+function editItem(id){
+  const it=id?byId(id):null;
   openModal(`
-    <div class="modal-head"><h3>เริ่มข้อมูลใหม่?</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">ล้างข้อมูลทั้งหมดในเครื่องนี้ (รายการของ · ที่เก็บ · การเคลื่อนไหว · ใบสั่ง · งานผลิต) แล้วเริ่มด้วยชุดตัวอย่าง
-      <div class="hint" style="margin-top:8px;color:var(--danger)">⚠️ ข้อมูลที่ล้างแล้วเอากลับคืนไม่ได้ — ควรออก CSV เก็บไว้ก่อนถ้ามีของจริง</div></div>
-    <div class="modal-foot"><button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmReset()">ล้างแล้วเริ่มใหม่</button></div>`);
+    <div class="mh"><h3>${it?"แก้ไขสินค้า":"เพิ่มสินค้า"}</h3><button class="x" onclick="closeModal()">×</button></div>
+    <div class="mb">
+      <div class="field"><label>ชื่อสินค้า *</label><input id="f-name" value="${it?esc(it.name):""}" placeholder="เช่น สครับ AHA 300g"></div>
+      <div class="frow">
+        <div class="field"><label>หน่วย *</label><input id="f-unit" list="ul" value="${it?esc(it.unit):"ชิ้น"}" placeholder="ชิ้น/ใบ/โล"><datalist id="ul">${UNITS.map(u=>`<option value="${u}">`).join("")}</datalist></div>
+        <div class="field"><label>จำนวนที่มีตอนนี้</label><input id="f-qty" type="number" step="any" value="${it?it.qty:0}" placeholder="0"></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label>เตือนเมื่อเหลือ ≤</label><input id="f-rop" type="number" step="any" value="${it?it.reorderPoint:""}" placeholder="เช่น 100"></div>
+        <div class="field"><label>ต้นทุน/หน่วย (ไม่บังคับ)</label><input id="f-cost" type="number" step="any" value="${it?(it.cost||""):""}" placeholder="0"></div>
+      </div>
+    </div>
+    <div class="mf"><button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn btn-primary" onclick="saveItem('${id||""}')">${it?"บันทึก":"เพิ่ม"}</button></div>`);
+  setTimeout(()=>document.getElementById("f-name").focus(),50);
 }
-function confirmReset(){
-  state = seed(); save();
-  closeModal(); toast("เริ่มข้อมูลใหม่แล้ว"); go("dashboard");
+function saveItem(id){
+  const name=document.getElementById("f-name").value.trim();
+  if(!name){ toast("ใส่ชื่อสินค้าก่อน",true); return; }
+  const unit=document.getElementById("f-unit").value.trim()||"ชิ้น";
+  const qty=Math.max(0,parseFloat(document.getElementById("f-qty").value)||0);
+  const rop=parseFloat(document.getElementById("f-rop").value)||0;
+  const cost=parseFloat(document.getElementById("f-cost").value)||0;
+  if(id){ const it=byId(id); Object.assign(it,{name,unit,qty,reorderPoint:rop,cost}); toast("บันทึกแล้ว"); }
+  else{ state.items.push({id:uid(),name,unit,qty,reorderPoint:rop,cost,category:""}); toast("เพิ่มสินค้าแล้ว"); }
+  save(); closeModal(); render();
 }
-// ตั้งยอดคงเหลือเป็น 0 ทั้งหมด — ล้างการเคลื่อนไหว/ใบสั่ง/งานผลิต แต่เก็บรายการของ+สูตร+ที่เก็บ
+function delItem(id){
+  const it=byId(id); if(!it) return;
+  openModal(`<div class="mh"><h3>ลบสินค้า?</h3><button class="x" onclick="closeModal()">×</button></div>
+    <div class="mb">ลบ <b>${esc(it.name)}</b> ออกจากรายการใช่ไหม?</div>
+    <div class="mf"><button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmDel('${id}')">ลบเลย</button></div>`);
+}
+function confirmDel(id){ state.items=state.items.filter(i=>i.id!==id); save(); closeModal(); toast("ลบแล้ว"); render(); }
+
 function zeroAll(){
-  openModal(`
-    <div class="modal-head"><h3>ตั้งยอดเป็น 0 ทั้งหมด?</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      ล้าง <b>ประวัติการเคลื่อนไหว · ใบสั่ง · งานผลิต</b> ทั้งหมด → คงเหลือทุกอย่างกลับเป็น <b>0</b>
-      <div class="hint" style="margin-top:8px">✓ เก็บ <b>รายการของ · สูตรผลิต · ที่เก็บ</b> ไว้เหมือนเดิม (เหมาะกับเริ่มนับสต๊อกจริงใหม่)</div>
-      <div class="hint" style="margin-top:6px;color:var(--danger)">⚠️ ประวัติที่ล้างแล้วเอากลับไม่ได้ — ออก CSV เก็บก่อนถ้าต้องการ</div>
-    </div>
-    <div class="modal-foot"><button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmZeroAll()">ตั้งเป็น 0</button></div>`);
+  openModal(`<div class="mh"><h3>ตั้งยอดทั้งหมดเป็น 0?</h3><button class="x" onclick="closeModal()">×</button></div>
+    <div class="mb">จำนวนของทุกสินค้าจะกลับเป็น <b>0</b> (เก็บรายชื่อสินค้าไว้เหมือนเดิม) — เหมาะกับเริ่มนับสต๊อกใหม่
+    <div class="hint" style="color:var(--danger);margin-top:6px">⚠️ ตัวเลขที่กรอกไว้จะหายหมด</div></div>
+    <div class="mf"><button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmZero()">ตั้งเป็น 0</button></div>`);
 }
-function confirmZeroAll(){
-  state.movements = [];
-  state.purchaseOrders = [];
-  state.productionRuns = [];
-  save(); closeModal(); toast("ตั้งยอดเป็น 0 ทั้งหมดแล้ว"); go("dashboard");
+function confirmZero(){ state.items.forEach(i=>i.qty=0); save(); closeModal(); toast("ตั้งเป็น 0 แล้ว"); render(); }
+
+function exportCSV(){
+  const rows=[["ชื่อสินค้า","หน่วย","จำนวนคงเหลือ","เตือนเมื่อ≤","ต้นทุน/หน่วย","สถานะ"]];
+  state.items.forEach(i=>rows.push([i.name,i.unit,i.qty||0,i.reorderPoint||0,i.cost||0,statusOf(i).k]));
+  const csv=rows.map(r=>r.map(c=>{const s=String(c==null?"":c);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}).join(",")).join("\n");
+  const b=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8;"}),u=URL.createObjectURL(b),a=document.createElement("a");
+  a.href=u;a.download="antheara-สต๊อก.csv";a.click();setTimeout(()=>URL.revokeObjectURL(u),500);
 }
 
-/* ---------- id helper ---------- */
-function uid(prefix){ return prefix + Date.now().toString(36) + Math.floor(Math.random()*1000).toString(36); }
-
-/* =========================================================
-   ฟังก์ชันแกน — คำนวณคงเหลือจาก movements เสมอ (ไม่เก็บยอดทับ)
-   ========================================================= */
-function balanceOf(productId, locationId){
-  let n = 0;
-  for(const m of state.movements){
-    if(m.productId!==productId || m.locationId!==locationId) continue;
-    n += (m.kind==="รับเข้า" ? m.qty : -m.qty);
-  }
-  return n;
-}
-function totalBalance(productId){
-  let n = 0;
-  for(const m of state.movements){
-    if(m.productId!==productId) continue;
-    n += (m.kind==="รับเข้า" ? m.qty : -m.qty);
-  }
-  return n;
-}
-function stockStatus(product){
-  const bal = totalBalance(product.id);
-  if(bal<=0) return {key:"หมด", cls:"c-danger", bal};
-  if(bal<=(product.reorderPoint||0)) return {key:"ใกล้หมด", cls:"c-warn", bal};
-  return {key:"พอ", cls:"c-ok", bal};
-}
-function lowStockProducts(){
-  return state.products.filter(p=>{ const b=totalBalance(p.id); return b<= (p.reorderPoint||0); });
-}
-function stockValue(){
-  return state.products.reduce((sum,p)=> sum + totalBalance(p.id)*(p.cost||0), 0);
-}
-
-/* ---------- lookups ---------- */
-const productById = id => state.products.find(p=>p.id===id);
-const locationById = id => state.locations.find(l=>l.id===id);
-
-/* =========================================================
-   MOVEMENT ENGINE — บันทึกการเคลื่อนไหว + กันติดลบ (ใช้ร่วมทุก TASK)
-   ========================================================= */
-// คืน movement ที่สร้าง (ไม่ save เอง — ให้ผู้เรียก save) — โยน error ถ้าติดลบ
-function addMovement({productId, locationId, kind, qty, reason, note, refType, refId, at}){
-  qty = Math.abs(Number(qty)||0);
-  if(qty<=0) throw new Error("จำนวนต้องมากกว่า 0");
-  if(kind==="ตัดออก"){
-    const bal = balanceOf(productId, locationId);
-    if(qty>bal){
-      const p=productById(productId), l=locationById(locationId);
-      throw new Error(`ของไม่พอ — ${p?p.name:''} ที่ ${l?l.name:''} เหลือ ${fmt(bal)} ${p?p.unit:''}`);
-    }
-  }
-  const m = {id:uid("M"), productId, locationId, kind, qty, reason:reason||"", note:note||"",
-             refType:refType||null, refId:refId||null, at:at||new Date().toISOString()};
-  state.movements.push(m);
-  return m;
-}
-// ย้ายข้ามที่ = ตัดออกต้นทาง + รับเข้าปลายทาง (atomic: เช็คก่อนทั้งคู่)
-function transfer({productId, fromLoc, toLoc, qty, note, refType, refId}){
-  qty = Math.abs(Number(qty)||0);
-  if(qty<=0) throw new Error("จำนวนต้องมากกว่า 0");
-  if(fromLoc===toLoc) throw new Error("ที่ต้นทางกับปลายทางต้องต่างกัน");
-  const bal = balanceOf(productId, fromLoc);
-  if(qty>bal){
-    const p=productById(productId), l=locationById(fromLoc);
-    throw new Error(`ของไม่พอ — ${p?p.name:''} ที่ ${l?l.name:''} เหลือ ${fmt(bal)} ${p?p.unit:''}`);
-  }
-  const at = new Date().toISOString();
-  const toName = (locationById(toLoc)||{}).name||"";
-  const fromName = (locationById(fromLoc)||{}).name||"";
-  addMovement({productId, locationId:fromLoc, kind:"ตัดออก", qty, reason:"ย้ายไป "+toName, note, refType, refId, at});
-  addMovement({productId, locationId:toLoc, kind:"รับเข้า", qty, reason:"ย้ายจาก "+fromName, note, refType, refId, at});
-}
-
-/* ---------- format ---------- */
-const fmt = n => (n||0).toLocaleString("th-TH");
-const baht = n => "฿" + Math.round(n||0).toLocaleString("th-TH");
-function fmtDate(iso){
-  if(!iso) return "—";
-  const d = new Date(iso);
-  return d.toLocaleDateString("th-TH",{day:"numeric",month:"short"}) + " " +
-         d.toLocaleTimeString("th-TH",{hour:"2-digit",minute:"2-digit"});
-}
-function fmtDay(iso){
-  if(!iso) return "—";
-  return new Date(iso).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"});
-}
-const catTag = c => `<span class="tag">${c}</span>`;
-function escapeHtml(s){ return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-function escapeAttr(s){ return escapeHtml(s); }
-
-/* ---------- CSV export helper (ใช้ในหลาย TASK) ---------- */
-function exportCSV(filename, rows){
-  const csv = rows.map(r=> r.map(c=>{
-    const s = (c==null?"":String(c));
-    return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s;
-  }).join(",")).join("\n");
-  const blob = new Blob(["﻿"+csv], {type:"text/csv;charset=utf-8;"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href=url; a.download=filename; a.click();
-  setTimeout(()=>URL.revokeObjectURL(url), 500);
-}
-
-/* =========================================================
-   MODAL + TOAST (ใช้ร่วมทุก TASK)
-   ========================================================= */
-function openModal(html){
-  document.getElementById("modal").innerHTML = html;
-  document.getElementById("modalBg").classList.add("show");
-}
+/* ---- modal + toast ---- */
+function openModal(h){ document.getElementById("modal").innerHTML=h; document.getElementById("modalBg").classList.add("show"); }
 function closeModal(){ document.getElementById("modalBg").classList.remove("show"); }
-document.getElementById("modalBg").addEventListener("mousedown", e=>{ if(e.target.id==="modalBg") closeModal(); });
-document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeModal(); });
-
-let _toastTimer=null;
-function toast(msg, isErr){
-  const t = document.getElementById("toast");
-  t.textContent = msg; t.className = "toast show" + (isErr?" err":"");
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(()=>{ t.className="toast"+(isErr?" err":""); }, 2400);
-}
-
-/* =========================================================
-   ROUTER
-   ========================================================= */
-const ROUTES = {
-  dashboard:{title:"แดชบอร์ด", render:renderDashboard},
-  products:{title:"รายการของ", render:renderProducts},
-  locations:{title:"คลัง & โรงงาน", render:renderLocations},
-  purchase:{title:"สั่งบรรจุภัณฑ์", render:renderPurchase},
-  production:{title:"งานผลิต", render:renderProduction},
-  history:{title:"ประวัติการเคลื่อนไหว", render:renderHistory}
-};
-let current = "dashboard";
-
-function go(route){
-  if(!ROUTES[route]) route="dashboard";
-  current = route;
-  document.querySelectorAll("#nav a").forEach(a=>a.classList.toggle("active", a.dataset.route===route));
-  document.getElementById("pageTitle").textContent = ROUTES[route].title;
-  const view = document.getElementById("view");
-  view.innerHTML = "";
-  ROUTES[route].render(view);
-  window.scrollTo(0,0);
-  closeSidebar();
-  refreshTopAlert();
-}
-function refreshTopAlert(){
-  const low = lowStockProducts().length;
-  const el = document.getElementById("topAlert");
-  const dot = document.getElementById("navDot");
-  if(low>0){
-    el.className="alerts"; el.innerHTML = "⚠️ ของใกล้หมด/หมด " + low + " รายการ";
-    dot.textContent = low; dot.classList.add("show");
-  }else{
-    el.className="alerts none"; el.innerHTML = "✓ ของครบทุกรายการ";
-    dot.classList.remove("show");
-  }
-}
-
-/* =========================================================
-   VIEWS — TASK 2 = โครง (dashboard + products อ่านได้จริง
-   ที่เหลือเป็น placeholder รอ TASK ถัดไป)
-   ========================================================= */
-function startOfToday(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
-function dueBadge(dueISO){
-  if(!dueISO) return "";
-  const due=new Date(dueISO); due.setHours(0,0,0,0);
-  const diff=Math.round((due-startOfToday())/86400000);
-  if(diff<0) return `<span class="chip c-danger">เลยกำหนด ${-diff} วัน</span>`;
-  if(diff===0) return `<span class="chip c-warn">ครบกำหนดวันนี้</span>`;
-  if(diff<=3) return `<span class="chip c-warn">อีก ${diff} วัน</span>`;
-  return `<span class="chip c-gray">อีก ${diff} วัน</span>`;
-}
-function renderDashboard(el){
-  const low = state.products.filter(p=>{const b=totalBalance(p.id); return b>0 && b<=(p.reorderPoint||0);});
-  const out = state.products.filter(p=>totalBalance(p.id)<=0);
-  const needOrder = [...out, ...low]; // หมดก่อน แล้วใกล้หมด
-  const openRuns = state.productionRuns.filter(r=>(r.qty-(r.shippedQty||0))>0)
-    .sort((a,b)=> new Date(a.dueDate||a.runDate)-new Date(b.dueDate||b.runDate));
-  const pendingPOs = state.purchaseOrders.filter(po=>po.status!=="รับเข้าคลังแล้ว")
-    .sort((a,b)=> new Date(a.dueDate||a.orderDate)-new Date(b.dueDate||b.orderDate));
-
-  el.innerHTML = `
-    <div class="cards">
-      <div class="kcard"><div class="k">มูลค่าสต๊อกรวม</div><div class="v num">${baht(stockValue())}</div></div>
-      <div class="kcard"><div class="k">รายการของ</div><div class="v num">${state.products.length} <small>รายการ</small></div></div>
-      <div class="kcard"><div class="k">ของใกล้หมด</div><div class="v num" style="color:${low.length?'var(--warn)':'var(--ink)'}">${low.length} <small>รายการ</small></div></div>
-      <div class="kcard"><div class="k">ของหมด</div><div class="v num" style="color:${out.length?'var(--danger)':'var(--ink)'}">${out.length} <small>รายการ</small></div></div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head"><h2>ต้องรีบสั่ง (คงเหลือ ≤ จุดสั่งซื้อ)</h2>
-        ${needOrder.length?`<div class="tools"><button class="btn btn-sm" onclick="go('purchase')">ไปสั่งบรรจุภัณฑ์ →</button></div>`:''}</div>
-      <div class="panel-body" style="overflow-x:auto">
-        ${needOrder.length? `<table><thead><tr><th>ของ</th><th>ประเภท</th><th class="r">คงเหลือรวม</th><th class="r">จุดสั่งซื้อ</th><th>สถานะ</th></tr></thead><tbody>
-          ${needOrder.map(p=>{const st=stockStatus(p);return `<tr>
-            <td><b>${escapeHtml(p.name)}</b></td><td>${catTag(p.category)}</td>
-            <td class="r"><span class="qty">${fmt(st.bal)}</span> <span class="muted">${p.unit}</span></td>
-            <td class="r muted">${fmt(p.reorderPoint)}</td>
-            <td><span class="chip ${st.cls}">${st.key}</span></td></tr>`;}).join("")}
-        </tbody></table>`
-        : `<div class="empty"><div class="big">✓</div>ของครบทุกรายการ ยังไม่มีอะไรต้องรีบสั่ง</div>`}
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head"><h2>🏭 งานผลิตที่กำลังทำ (${openRuns.length})</h2>
-        ${openRuns.length?`<div class="tools"><button class="btn btn-sm" onclick="go('production')">ดูงานผลิต →</button></div>`:''}</div>
-      <div class="panel-body">
-        ${openRuns.length? openRuns.map(r=>{ const p=productById(r.productOutId), f=locationById(r.factoryId);
-          const shipped=r.shippedQty||0, pct=Math.min(100, Math.round(shipped/r.qty*100));
-          return `<div class="mrow" style="align-items:flex-start">
-            <div style="flex:1">
-              <div class="nm">${p?escapeHtml(p.name):'?'} <span class="muted">· ${f?escapeHtml(f.name):''}</span></div>
-              <div class="muted">ผลิต ${fmt(r.qty)} ${p?p.unit:''} · ส่งออกแล้ว ${fmt(shipped)} · รอส่งออก ${fmt(r.qty-shipped)}</div>
-              <div class="prog" style="height:8px;background:#eef0f6;border-radius:99px;overflow:hidden;margin-top:8px;max-width:340px"><i style="display:block;height:100%;background:var(--accent);width:${pct}%"></i></div>
-            </div>
-            <div style="text-align:right;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
-              <span class="chip ${RUN_STATUS_CLS[r.status]||'c-gray'}">${r.status}</span>
-              ${dueBadge(r.dueDate)}
-            </div></div>`;
-        }).join("")
-        : `<div class="empty"><div class="big">✓</div>ไม่มีงานผลิตค้าง — ผลิตเสร็จ-ส่งออกครบหมดแล้ว</div>`}
-      </div>
-    </div>
-
-    <div class="panel">
-      <div class="panel-head"><h2>🛒 ใบสั่งที่รอจ่าย/รอรับ (${pendingPOs.length})</h2>
-        ${pendingPOs.length?`<div class="tools"><button class="btn btn-sm" onclick="go('purchase')">ดูใบสั่ง →</button></div>`:''}</div>
-      <div class="panel-body">
-        ${pendingPOs.length? pendingPOs.map(po=>{ const rest = po.status==="จ่ายครบ"? 0 : (po.status==="รอมัดจำ"? poTotal(po) : po.balance);
-          return `<div class="mrow" style="align-items:flex-start">
-            <div style="flex:1">
-              <div class="nm">${escapeHtml(po.supplier)} <span class="muted">· ${baht(poTotal(po))}</span></div>
-              <div class="muted">${po.items.map(it=>{const p=productById(it.productId);return (p?escapeHtml(p.name):'?')+' '+fmt(it.qty);}).join(" · ")}</div>
-            </div>
-            <div style="text-align:right;display:flex;flex-direction:column;gap:4px;align-items:flex-end">
-              <span class="chip c-warn">${po.status}</span>
-              ${rest>0?`<span class="muted">ค้างจ่าย ${baht(rest)}</span>`:''}
-              ${dueBadge(po.dueDate)}
-            </div></div>`;
-        }).join("")
-        : `<div class="empty"><div class="big">✓</div>ไม่มีใบสั่งค้าง — รับเข้าคลังครบหมดแล้ว</div>`}
-      </div>
-    </div>`;
-}
-
-const CATEGORIES = ["สินค้าสำเร็จรูป","บรรจุภัณฑ์","เนื้อ/วัตถุดิบ"];
-const UNIT_SUGGEST = ["ชิ้น","ใบ","โล","กรัม","ขวด","หลอด","กล่อง","แพ็ค"];
-
-function renderProducts(el){
-  const rows = state.products.map(p=>{
-    const st = stockStatus(p);
-    return `<tr>
-      <td><b>${p.name}</b>${p.recipe?` <span class="muted">· มีสูตร</span>`:""}</td>
-      <td>${catTag(p.category)}</td>
-      <td class="muted">${p.unit}</td>
-      <td class="r">${baht(p.cost)}</td>
-      <td class="r"><span class="qty">${fmt(st.bal)}</span></td>
-      <td class="r muted">${fmt(p.reorderPoint)}</td>
-      <td><span class="chip ${st.cls}">${st.key}</span></td>
-      <td class="r"><div class="row-actions">
-        <button class="icon-btn" title="แก้ไข" onclick="editProduct('${p.id}')">✏️</button>
-        <button class="icon-btn danger" title="ลบ" onclick="deleteProduct('${p.id}')">🗑️</button>
-      </div></td>
-    </tr>`;
-  }).join("");
-  el.innerHTML = `
-    <div class="panel">
-      <div class="panel-head">
-        <h2>รายการของทั้งหมด (${state.products.length})</h2>
-        <div class="tools">
-          <button class="btn btn-sm" onclick="doExportProducts()">⬇︎ ออก CSV</button>
-          <button class="btn btn-primary btn-sm" onclick="editProduct()">+ เพิ่มของ</button>
-        </div>
-      </div>
-      <div class="panel-body" style="overflow-x:auto">
-        ${state.products.length? `<table>
-          <thead><tr><th>ชื่อของ</th><th>ประเภท</th><th>หน่วย</th><th class="r">ต้นทุน/หน่วย</th><th class="r">คงเหลือรวม</th><th class="r">จุดสั่งซื้อ</th><th>สถานะ</th><th></th></tr></thead>
-          <tbody>${rows}</tbody>
-        </table>`
-        : `<div class="empty"><div class="big">📦</div>ยังไม่มีรายการของ กด “+ เพิ่มของ” เพื่อเริ่ม</div>`}
-      </div>
-    </div>`;
-}
-
-/* ---- ฟอร์มเพิ่ม/แก้ของ (มีสูตรสำหรับสินค้าสำเร็จรูป) ---- */
-function editProduct(id){
-  const p = id? productById(id) : null;
-  const isEdit = !!p;
-  const rc = p&&p.recipe? p.recipe : {};
-  const contents = state.products.filter(x=>x.category==="เนื้อ/วัตถุดิบ");
-  const packs = state.products.filter(x=>x.category==="บรรจุภัณฑ์");
-  const optList = (arr,sel)=> `<option value="">— ไม่มี —</option>` + arr.map(x=>`<option value="${x.id}" ${sel===x.id?"selected":""}>${escapeHtml(x.name)} (${x.unit})</option>`).join("");
-  openModal(`
-    <div class="modal-head"><h3>${isEdit?"แก้ไขของ":"เพิ่มของใหม่"}</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="field" id="f-name">
-        <label>ชื่อของ <span class="req">*</span></label>
-        <input id="p-name" value="${p?escapeAttr(p.name):""}" placeholder="เช่น สครับ aha 250g / กระปุก 250ml / เนื้อสครับ">
-      </div>
-      <div class="field">
-        <label>ประเภท <span class="req">*</span></label>
-        <select id="p-cat" onchange="toggleRecipe()">${CATEGORIES.map(c=>`<option ${p&&p.category===c?"selected":""}>${c}</option>`).join("")}</select>
-      </div>
-      <div class="frow">
-        <div class="field">
-          <label>หน่วยนับ <span class="req">*</span></label>
-          <input id="p-unit" list="unitlist" value="${p?escapeAttr(p.unit):""}" placeholder="ชิ้น / ใบ / โล">
-          <datalist id="unitlist">${UNIT_SUGGEST.map(u=>`<option value="${u}">`).join("")}</datalist>
-        </div>
-        <div class="field">
-          <label>ต้นทุน/หน่วย (฿)</label>
-          <input id="p-cost" type="number" min="0" step="0.01" value="${p?p.cost:""}" placeholder="0">
-        </div>
-      </div>
-      <div class="field">
-        <label>จุดสั่งซื้อ (เหลือต่ำกว่านี้ = เตือนใกล้หมด)</label>
-        <input id="p-reorder" type="number" min="0" step="1" value="${p?p.reorderPoint:10}" placeholder="10">
-      </div>
-      <div id="recipe-box" style="display:none;background:#f6f8fc;border-radius:11px;padding:14px 14px 4px;margin-top:4px">
-        <div style="font-weight:700;font-size:13px;margin-bottom:4px">🧪 สูตรการผลิต (ต่อ 1 ชิ้น)</div>
-        <div class="hint" style="margin-bottom:10px">ตั้งครั้งเดียว เวลาสั่งผลิตระบบจะคูณให้เอง ว่าใช้เนื้อ/กระปุกเท่าไหร่</div>
-        <div class="frow">
-          <div class="field"><label>ใช้เนื้อ/วัตถุดิบ</label><select id="p-content">${optList(contents, rc.contentId)}</select></div>
-          <div class="field"><label>ปริมาณต่อชิ้น</label><input id="p-content-per" type="number" min="0" step="any" value="${rc.contentPerUnit||""}" placeholder="เช่น 0.6"></div>
-        </div>
-        <div class="frow">
-          <div class="field"><label>ใช้บรรจุภัณฑ์</label><select id="p-pack">${optList(packs, rc.packagingId)}</select></div>
-          <div class="field"><label>จำนวนต่อชิ้น</label><input id="p-pack-per" type="number" min="0" step="any" value="${rc.packagingPerUnit!=null?rc.packagingPerUnit:1}" placeholder="1"></div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveProduct('${id||""}')">${isEdit?"บันทึกการแก้ไข":"เพิ่มของ"}</button>
-    </div>`);
-  toggleRecipe();
-  setTimeout(()=>document.getElementById("p-name").focus(),50);
-}
-function toggleRecipe(){
-  const cat = document.getElementById("p-cat").value;
-  document.getElementById("recipe-box").style.display = (cat==="สินค้าสำเร็จรูป")?"block":"none";
-}
-function saveProduct(id){
-  const name = document.getElementById("p-name").value.trim();
-  const cat = document.getElementById("p-cat").value;
-  const unit = document.getElementById("p-unit").value.trim();
-  const cost = parseFloat(document.getElementById("p-cost").value)||0;
-  const reorder = parseInt(document.getElementById("p-reorder").value)||0;
-  if(!name){ toast("กรอกชื่อของก่อน", true); document.getElementById("p-name").focus(); return; }
-  if(!unit){ toast("กรอกหน่วยนับก่อน", true); document.getElementById("p-unit").focus(); return; }
-  let recipe = null;
-  if(cat==="สินค้าสำเร็จรูป"){
-    const cId=document.getElementById("p-content").value;
-    const cPer=parseFloat(document.getElementById("p-content-per").value)||0;
-    const kId=document.getElementById("p-pack").value;
-    const kPer=parseFloat(document.getElementById("p-pack-per").value);
-    if(cId || kId){
-      recipe = {contentId:cId||null, contentPerUnit:cPer, packagingId:kId||null, packagingPerUnit:isNaN(kPer)?1:kPer};
-    }
-  }
-  if(id){
-    const p = productById(id);
-    p.name=name; p.category=cat; p.unit=unit; p.cost=cost; p.reorderPoint=reorder; p.recipe=recipe;
-    toast("บันทึกการแก้ไขแล้ว");
-  }else{
-    state.products.push({id:uid("P"), name, category:cat, unit, cost, reorderPoint:reorder, recipe});
-    toast("เพิ่มของแล้ว");
-  }
-  save(); closeModal(); go("products");
-}
-function deleteProduct(id){
-  const p = productById(id); if(!p) return;
-  const moveCount = state.movements.filter(m=>m.productId===id).length;
-  const runCount = state.productionRuns.filter(r=>r.productOutId===id).length;
-  const recipeUsers = state.products.filter(x=>x.recipe && (x.recipe.contentId===id || x.recipe.packagingId===id));
-  const poCount = state.purchaseOrders.filter(po=>po.items.some(it=>it.productId===id)).length;
-  const parts=[];
-  if(moveCount) parts.push(`ประวัติการเคลื่อนไหว ${fmt(moveCount)} รายการ`);
-  if(runCount) parts.push(`งานผลิต ${fmt(runCount)} รายการ`);
-  if(poCount) parts.push(`รายการในใบสั่ง ${fmt(poCount)} ใบ`);
-  if(recipeUsers.length) parts.push(`สูตรของ ${recipeUsers.map(x=>escapeHtml(x.name)).join(", ")}`);
-  const warn = parts.length? `<div class="hint" style="margin-top:8px;color:var(--danger)">⚠️ จะลบข้อมูลที่เกี่ยวข้องไปด้วย: ${parts.join(" · ")}</div>` : "";
-  openModal(`
-    <div class="modal-head"><h3>ลบของ?</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">ต้องการลบ <b>${escapeHtml(p.name)}</b> ออกจากรายการใช่ไหม?${warn}</div>
-    <div class="modal-foot">
-      <button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmDeleteProduct('${id}')">ลบเลย</button>
-    </div>`);
-}
-function confirmDeleteProduct(id){
-  state.products = state.products.filter(p=>p.id!==id);
-  state.movements = state.movements.filter(m=>m.productId!==id);            // ลบประวัติที่เกี่ยวข้อง
-  state.productionRuns = state.productionRuns.filter(r=>r.productOutId!==id); // ลบงานผลิตที่ผลิตของนี้
-  state.products.forEach(x=>{ if(x.recipe){                                  // เคลียร์อ้างอิงในสูตร
-    if(x.recipe.contentId===id) x.recipe.contentId=null;
-    if(x.recipe.packagingId===id) x.recipe.packagingId=null;
-  }});
-  state.purchaseOrders.forEach(po=>{ po.items = po.items.filter(it=>it.productId!==id); }); // เอาออกจากใบสั่ง
-  state.purchaseOrders = state.purchaseOrders.filter(po=>po.items.length>0);                // ลบใบสั่งที่ว่างเปล่า
-  save(); closeModal(); toast("ลบของแล้ว"); go("products");
-}
-function doExportProducts(){
-  const rows = [["ชื่อของ","ประเภท","หน่วย","ต้นทุน/หน่วย","คงเหลือรวม","จุดสั่งซื้อ","สถานะ"]];
-  state.products.forEach(p=>{ const st=stockStatus(p);
-    rows.push([p.name,p.category,p.unit,p.cost,st.bal,p.reorderPoint,st.key]); });
-  exportCSV("antheara-รายการของ.csv", rows);
-}
-
-function renderLocations(el){
-  // ตารางคงเหลือแยกตามที่ (แถว = ของ, คอลัมน์ = ที่)
-  const locs = state.locations;
-  const head = `<tr><th>ของ</th>${locs.map(l=>`<th class="r">${l.name}<div class="muted" style="font-weight:500">${l.kind}</div></th>`).join("")}<th class="r">รวม</th></tr>`;
-  const body = state.products.map(p=>{
-    const cells = locs.map(l=>{ const b=balanceOf(p.id,l.id);
-      return `<td class="r">${b?`<span class="qty">${fmt(b)}</span>`:`<span class="muted">—</span>`}</td>`; }).join("");
-    return `<tr><td><b>${p.name}</b> <span class="muted">${p.unit}</span></td>${cells}<td class="r"><span class="qty">${fmt(totalBalance(p.id))}</span></td></tr>`;
-  }).join("");
-  el.innerHTML = `
-    <div class="panel">
-      <div class="panel-head">
-        <h2>ที่เก็บของ (${locs.length})</h2>
-        <div class="tools"><button class="btn btn-primary btn-sm" onclick="editLocation()">+ เพิ่มที่</button></div>
-      </div>
-      <div class="panel-body">
-        <table><thead><tr><th>ชื่อที่</th><th>ประเภท</th><th class="r">คงเหลือ</th><th class="r">มูลค่าของที่นี่</th><th></th></tr></thead><tbody>
-          ${locs.map(l=>`<tr>
-            <td><b>${escapeHtml(l.name)}</b></td>
-            <td><span class="chip ${l.kind==='โรงงาน'?'c-blue':'c-gray'}">${l.kind}</span></td>
-            <td class="r">${locationQtySummary(l.id)}</td>
-            <td class="r muted">${baht(locationValue(l.id))}</td>
-            <td class="r"><div class="row-actions">
-              <button class="icon-btn" title="แก้ไข" onclick="editLocation('${l.id}')">✏️</button>
-              <button class="icon-btn danger" title="ลบ" onclick="deleteLocation('${l.id}')">🗑️</button>
-            </div></td></tr>`).join("")}
-        </tbody></table>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-head">
-        <h2>คงเหลือแยกตามที่</h2>
-        <div class="tools"><button class="btn btn-sm" onclick="doExportMatrix()">⬇︎ ออก CSV</button></div>
-      </div>
-      <div class="panel-body" style="overflow-x:auto">
-        <table><thead>${head}</thead><tbody>${body}</tbody></table>
-      </div>
-    </div>`;
-}
-function locationValue(locId){
-  return state.products.reduce((s,p)=> s + balanceOf(p.id,locId)*(p.cost||0), 0);
-}
-// สรุปจำนวนคงเหลือของที่หนึ่ง แยกตามหน่วย (หน่วยต่างกันบวกรวมกันไม่ได้)
-function locationQtySummary(locId){
-  const byUnit = {};
-  state.products.forEach(p=>{ const b=balanceOf(p.id,locId); if(b>0){ byUnit[p.unit]=(byUnit[p.unit]||0)+b; } });
-  const parts = Object.keys(byUnit).map(u=>`<span class="qty">${fmt(byUnit[u])}</span> <span class="muted">${escapeHtml(u)}</span>`);
-  return parts.length? parts.join(" · ") : `<span class="muted">—</span>`;
-}
-function editLocation(id){
-  const l = id? locationById(id) : null;
-  openModal(`
-    <div class="modal-head"><h3>${l?"แก้ไขที่เก็บ":"เพิ่มที่เก็บ"}</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="field"><label>ชื่อที่ <span class="req">*</span></label>
-        <input id="l-name" value="${l?escapeAttr(l.name):""}" placeholder="เช่น คลังกลาง / โรงงานสครับ / โรงงานโลชั่น"></div>
-      <div class="field"><label>ประเภท <span class="req">*</span></label>
-        <select id="l-kind">
-          <option ${l&&l.kind==='คลังเรา'?'selected':''}>คลังเรา</option>
-          <option ${l&&l.kind==='โรงงาน'?'selected':''}>โรงงาน</option>
-        </select></div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveLocation('${id||""}')">${l?"บันทึก":"เพิ่มที่"}</button>
-    </div>`);
-  setTimeout(()=>document.getElementById("l-name").focus(),50);
-}
-function saveLocation(id){
-  const name = document.getElementById("l-name").value.trim();
-  const kind = document.getElementById("l-kind").value;
-  if(!name){ toast("กรอกชื่อที่ก่อน", true); return; }
-  if(id){ const l=locationById(id); l.name=name; l.kind=kind; toast("บันทึกแล้ว"); }
-  else{ state.locations.push({id:uid("L"), name, kind}); toast("เพิ่มที่แล้ว"); }
-  save(); closeModal(); go("locations");
-}
-function deleteLocation(id){
-  const l = locationById(id); if(!l) return;
-  const moveCount = state.movements.filter(m=>m.locationId===id).length;
-  const runCount = state.productionRuns.filter(r=>r.factoryId===id).length;
-  const parts=[];
-  if(moveCount) parts.push(`ประวัติการเคลื่อนไหว ${fmt(moveCount)} รายการ`);
-  if(runCount) parts.push(`งานผลิต ${fmt(runCount)} รายการ`);
-  const warn = parts.length? `<div class="hint" style="margin-top:8px;color:var(--danger)">⚠️ จะลบข้อมูลที่เกี่ยวข้องไปด้วย: ${parts.join(" · ")}</div>` : "";
-  openModal(`
-    <div class="modal-head"><h3>ลบที่เก็บ?</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">ต้องการลบ <b>${escapeHtml(l.name)}</b> ใช่ไหม?${warn}</div>
-    <div class="modal-foot">
-      <button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmDeleteLocation('${id}')">ลบเลย</button>
-    </div>`);
-}
-function confirmDeleteLocation(id){
-  state.locations = state.locations.filter(l=>l.id!==id);
-  state.movements = state.movements.filter(m=>m.locationId!==id);            // ลบประวัติที่ที่นี้
-  state.productionRuns = state.productionRuns.filter(r=>r.factoryId!==id);   // ลบงานผลิตที่โรงงานนี้
-  state.purchaseOrders.forEach(po=>{ if(po.receivedLocationId===id) po.receivedLocationId=null; });
-  save(); closeModal(); toast("ลบที่แล้ว"); go("locations");
-}
-function doExportMatrix(){
-  const rows = [["ของ","หน่วย",...state.locations.map(l=>l.name),"รวม"]];
-  state.products.forEach(p=>{
-    rows.push([p.name,p.unit,...state.locations.map(l=>balanceOf(p.id,l.id)), totalBalance(p.id)]);
-  });
-  exportCSV("antheara-คงเหลือแยกที่.csv", rows);
-}
-
-/* =========================================================
-   สั่งบรรจุภัณฑ์ (Purchase Orders) — ไทม์ไลน์จ่าย 50/50
-   ========================================================= */
-const PO_FLOW = ["รอมัดจำ","จ่ายมัดจำแล้ว","ผลิตเสร็จ/รอจ่ายที่เหลือ","จ่ายครบ","รับเข้าคลังแล้ว"];
-const PO_NEXT_LABEL = {
-  "รอมัดจำ":"✓ จ่ายมัดจำแล้ว",
-  "จ่ายมัดจำแล้ว":"✓ ผลิตเสร็จ",
-  "ผลิตเสร็จ/รอจ่ายที่เหลือ":"✓ จ่ายครบ",
-  "จ่ายครบ":"📦 รับเข้าคลัง"
-};
-const poTotal = po => po.items.reduce((s,it)=> s + (it.qty||0)*(it.unitCost||0), 0);
-
-function renderPurchase(el){
-  const pos = [...state.purchaseOrders].sort((a,b)=> new Date(b.orderDate)-new Date(a.orderDate));
-  const cards = pos.map(po=>{
-    const total = poTotal(po);
-    const idx = PO_FLOW.indexOf(po.status);
-    const seg = (label, i, sub)=>`<div class="seg ${i<idx?'done':i===idx?'now':''}">${label}${sub?`<br>${sub}`:''}</div>`;
-    const items = po.items.map(it=>{ const p=productById(it.productId);
-      return `<div class="mrow"><div><div class="nm">${p?escapeHtml(p.name):'?'} × ${fmt(it.qty)} ${p?p.unit:''}</div>
-        <div class="muted">${baht(it.unitCost)}/หน่วย</div></div><span class="qty">${baht(it.qty*it.unitCost)}</span></div>`;
-    }).join("");
-    const recLoc = locationById(po.receivedLocationId);
-    const done = po.status==="รับเข้าคลังแล้ว";
-    return `<div class="panel">
-      <div class="panel-head">
-        <h2>${escapeHtml(po.supplier||"ใบสั่ง")} <span class="muted" style="font-weight:500">· ${fmtDay(po.orderDate)}</span></h2>
-        <div class="tools">
-          <span class="chip ${done?'c-ok':'c-warn'}">${po.status}</span>
-          ${!done?`<button class="btn btn-primary btn-sm" onclick="advancePO('${po.id}')">${PO_NEXT_LABEL[po.status]}</button>`:''}
-          <button class="icon-btn danger" title="ลบ" onclick="deletePO('${po.id}')">🗑️</button>
-        </div>
-      </div>
-      <div class="panel-body" style="padding:14px 16px">
-        ${items}
-        <div class="mrow" style="border:0;background:#f6f8fc;margin-top:4px">
-          <div class="nm">ยอดรวม</div><span class="qty">${baht(total)}</span></div>
-        <div style="font-size:12px;color:var(--ink2);margin:12px 4px 4px;font-weight:600">ไทม์ไลน์การจ่าย · รับเข้าที่ ${recLoc?escapeHtml(recLoc.name):'?'}</div>
-        <div class="tl">
-          ${seg("มัดจำ "+po.depositPct+"%", 1, baht(po.deposit))}
-          ${seg("จ่ายที่เหลือ", 3, baht(po.balance))}
-          ${seg("รับเข้าคลัง", 4, done?"✓":"")}
-        </div>
-      </div>
-    </div>`;
-  }).join("");
-  el.innerHTML = `
-    <div class="page-head" style="display:flex;align-items:center">
-      <div><p>สั่งกระปุก/ขวด/บรรจุภัณฑ์ · จ่ายมัดจำก่อนผลิต แล้วจ่ายที่เหลือ · กดรับเข้าคลังของถึงจะเข้าสต๊อก</p></div>
-      <div style="margin-left:auto;display:flex;gap:8px">
-        <button class="btn btn-sm" onclick="doExportPO()">⬇︎ CSV</button>
-        <button class="btn btn-primary btn-sm" onclick="poForm()">+ สร้างใบสั่ง</button>
-      </div>
-    </div>
-    ${pos.length? cards : `<div class="placeholder"><div class="big">🛒</div><h3>ยังไม่มีใบสั่ง</h3><p>กด “+ สร้างใบสั่ง” เพื่อเริ่มสั่งบรรจุภัณฑ์</p></div>`}`;
-}
-
-/* ---- ฟอร์มสร้างใบสั่ง ---- */
-let poItems = [];
-function poForm(){
-  if(state.products.length===0){ toast("เพิ่มรายการของก่อน", true); return; }
-  const packs = state.products.filter(p=>p.category==="บรรจุภัณฑ์");
-  const firstProd = (packs[0]||state.products[0]);
-  poItems = [{productId:firstProd.id, qty:0, unitCost:firstProd.cost||0}];
-  const locOpts = state.locations.map(l=>`<option value="${l.id}" ${l.kind==='คลังเรา'?'selected':''}>${escapeHtml(l.name)}</option>`).join("");
-  const today = new Date().toISOString().slice(0,10);
-  openModal(`
-    <div class="modal-head"><h3>สร้างใบสั่งบรรจุภัณฑ์</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="frow">
-        <div class="field"><label>ผู้ผลิต/ร้าน <span class="req">*</span></label><input id="po-supplier" placeholder="เช่น แพ็คโปร"></div>
-        <div class="field"><label>กำหนดเสร็จ</label><input id="po-due" type="date" value=""></div>
-      </div>
-      <div class="frow">
-        <div class="field"><label>รับเข้าที่</label><select id="po-loc">${locOpts}</select></div>
-        <div class="field"><label>มัดจำ (%)</label><input id="po-pct" type="number" min="0" max="100" value="50" oninput="recalcPO()"></div>
-      </div>
-      <label style="font-size:13px;font-weight:600;margin-bottom:6px;display:block">รายการที่สั่ง</label>
-      <div id="po-items"></div>
-      <button class="btn btn-sm" style="margin-top:4px" onclick="addPOItem()">+ เพิ่มรายการ</button>
-      <div class="hint" id="po-summary" style="background:#f6f8fc;border-radius:9px;padding:12px;margin-top:14px"></div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="savePO()">สร้างใบสั่ง</button>
-    </div>`);
-  document.getElementById("po-due").value = today;
-  renderPOItems();
-  setTimeout(()=>document.getElementById("po-supplier").focus(),50);
-}
-function poProdOptions(sel){
-  return state.products.map(p=>`<option value="${p.id}" ${p.id===sel?'selected':''}>${escapeHtml(p.name)} (${p.unit})</option>`).join("");
-}
-function renderPOItems(){
-  const c = document.getElementById("po-items");
-  c.innerHTML = poItems.map((it,i)=>`
-    <div class="frow" style="grid-template-columns:1fr 72px 82px 30px;gap:8px;margin-bottom:8px;align-items:center">
-      <select onchange="poItems[${i}].productId=this.value;poPickCost(${i});recalcPO()">${poProdOptions(it.productId)}</select>
-      <input type="number" min="0" placeholder="จำนวน" value="${it.qty||''}" oninput="poItems[${i}].qty=parseFloat(this.value)||0;recalcPO()">
-      <input type="number" min="0" step="0.01" placeholder="ราคา/หน่วย" value="${it.unitCost||''}" oninput="poItems[${i}].unitCost=parseFloat(this.value)||0;recalcPO()">
-      <button class="icon-btn danger" onclick="removePOItem(${i})" ${poItems.length<=1?'style="visibility:hidden"':''}>✕</button>
-    </div>`).join("");
-  recalcPO();
-}
-function poPickCost(i){ const p=productById(poItems[i].productId); if(p && !poItems[i].unitCost) poItems[i].unitCost=p.cost||0; renderPOItems(); }
-function addPOItem(){ const p=state.products[0]; poItems.push({productId:p.id, qty:0, unitCost:p.cost||0}); renderPOItems(); }
-function removePOItem(i){ poItems.splice(i,1); renderPOItems(); }
-function recalcPO(){
-  const total = poItems.reduce((s,it)=> s+(it.qty||0)*(it.unitCost||0), 0);
-  const pct = Math.min(100, Math.max(0, parseFloat((document.getElementById("po-pct")||{}).value)||0));
-  const deposit = Math.round(total*pct/100);
-  const balance = total - deposit;
-  const s = document.getElementById("po-summary");
-  if(s) s.innerHTML = `ยอดรวม <b>${baht(total)}</b> &nbsp;·&nbsp; มัดจำ ${pct}% = <b style="color:var(--accent)">${baht(deposit)}</b> &nbsp;·&nbsp; จ่ายที่เหลือ <b>${baht(balance)}</b>`;
-}
-function savePO(){
-  const supplier = document.getElementById("po-supplier").value.trim();
-  const due = document.getElementById("po-due").value;
-  const loc = document.getElementById("po-loc").value;
-  const pct = Math.min(100, Math.max(0, parseFloat(document.getElementById("po-pct").value)||0));
-  if(!supplier){ toast("กรอกชื่อผู้ผลิต/ร้านก่อน", true); return; }
-  const items = poItems.filter(it=>it.qty>0);
-  if(items.length===0){ toast("ใส่รายการที่สั่ง (จำนวน > 0) อย่างน้อย 1 รายการ", true); return; }
-  const total = items.reduce((s,it)=> s+it.qty*it.unitCost, 0);
-  const deposit = Math.round(total*pct/100);
-  state.purchaseOrders.push({
-    id:uid("PO"), supplier, orderDate:new Date().toISOString(), dueDate:due||null,
-    items:items.map(it=>({productId:it.productId, qty:it.qty, unitCost:it.unitCost})),
-    depositPct:pct, deposit, balance:total-deposit,
-    status:"รอมัดจำ", receivedLocationId:loc, note:""
-  });
-  save(); closeModal(); toast("สร้างใบสั่งแล้ว"); go("purchase");
-}
-function advancePO(id){
-  const po = state.purchaseOrders.find(x=>x.id===id); if(!po) return;
-  const i = PO_FLOW.indexOf(po.status);
-  const next = PO_FLOW[i+1]; if(!next) return;
-  if(next==="รับเข้าคลังแล้ว"){
-    // สร้าง movement รับเข้า ทุก item
-    try{
-      po.items.forEach(it=> addMovement({productId:it.productId, locationId:po.receivedLocationId,
-        kind:"รับเข้า", qty:it.qty, reason:"รับจากใบสั่ง", note:po.supplier, refType:"PO", refId:po.id}));
-    }catch(e){ toast(e.message, true); return; }
-    po.status = next;
-    save(); toast("รับเข้าคลังแล้ว — ของเข้าสต๊อก");
-  }else{
-    po.status = next; save(); toast("อัปเดตสถานะ: "+next);
-  }
-  go("purchase");
-}
-function deletePO(id){
-  const po = state.purchaseOrders.find(x=>x.id===id); if(!po) return;
-  if(po.status==="รับเข้าคลังแล้ว"){ toast("รับเข้าคลังแล้ว ลบไม่ได้ (ของเข้าสต๊อกไปแล้ว)", true); return; }
-  openModal(`
-    <div class="modal-head"><h3>ลบใบสั่ง?</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">ลบใบสั่งจาก <b>${escapeHtml(po.supplier)}</b> ยอด ${baht(poTotal(po))} ใช่ไหม?</div>
-    <div class="modal-foot"><button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmDeletePO('${id}')">ลบเลย</button></div>`);
-}
-function confirmDeletePO(id){
-  state.purchaseOrders = state.purchaseOrders.filter(x=>x.id!==id);
-  save(); closeModal(); toast("ลบใบสั่งแล้ว"); go("purchase");
-}
-function doExportPO(){
-  const rows=[["ผู้ผลิต","วันสั่ง","กำหนดเสร็จ","สถานะ","ของ","จำนวน","ราคา/หน่วย","รวม","มัดจำ","จ่ายที่เหลือ","รับเข้าที่"]];
-  state.purchaseOrders.forEach(po=>{ const loc=locationById(po.receivedLocationId);
-    po.items.forEach(it=>{ const p=productById(it.productId);
-      rows.push([po.supplier, fmtDay(po.orderDate), po.dueDate?fmtDay(po.dueDate):'', po.status,
-        p?p.name:'', it.qty, it.unitCost, it.qty*it.unitCost, po.deposit, po.balance, loc?loc.name:'']); });
-  });
-  exportCSV("antheara-ใบสั่งบรรจุภัณฑ์.csv", rows);
-}
-/* =========================================================
-   งานผลิต (Production) — เลือกโรงงาน · รับเนื้อ · สั่งผลิต(สูตร) · ส่งออก
-   ========================================================= */
-let prodFactory = null; // โรงงานที่เลือกอยู่
-const RUN_STATUS_CLS = {"วางแผน":"c-gray","กำลังผลิต":"c-blue","ผลิตเสร็จ":"c-ok","ส่งออกแล้ว":"c-ok"};
-
-function renderProduction(el){
-  const factories = state.locations.filter(l=>l.kind==="โรงงาน");
-  if(factories.length===0){
-    el.innerHTML = `<div class="placeholder"><div class="big">🏭</div><h3>ยังไม่มีโรงงาน</h3>
-      <p>ไปเพิ่มโรงงานที่เมนู “คลัง & โรงงาน” ก่อน (ตั้งประเภทเป็น “โรงงาน”)</p></div>`; return;
-  }
-  if(!prodFactory || !factories.some(f=>f.id===prodFactory)) prodFactory = factories[0].id;
-  const fac = locationById(prodFactory);
-
-  // ของที่อยู่ที่โรงงานนี้ (คงเหลือ > 0) แยกตามประเภท
-  const atFactory = cat => state.products.filter(p=>p.category===cat && balanceOf(p.id, prodFactory)>0);
-  const stockRow = p =>`<div class="mrow"><div class="nm">${escapeHtml(p.name)}</div>
-    <span class="qty">${fmt(balanceOf(p.id,prodFactory))} <span class="muted">${p.unit}</span></span></div>`;
-  const contents = atFactory("เนื้อ/วัตถุดิบ"), packs = atFactory("บรรจุภัณฑ์"), goods = atFactory("สินค้าสำเร็จรูป");
-  const stockCol = (title,arr)=>`<div style="flex:1;min-width:150px">
-    <div style="font-size:12px;color:var(--ink2);font-weight:600;margin-bottom:6px">${title}</div>
-    ${arr.length?arr.map(stockRow).join(""):`<div class="muted" style="padding:6px">— ว่าง —</div>`}</div>`;
-
-  // งานผลิตของโรงงานนี้
-  const runs = state.productionRuns.filter(r=>r.factoryId===prodFactory).sort((a,b)=>new Date(b.runDate)-new Date(a.runDate));
-  const runRows = runs.map(r=>{ const po=productById(r.productOutId);
-    const remain = r.qty - (r.shippedQty||0);
-    return `<tr>
-      <td class="muted" style="white-space:nowrap">${fmtDay(r.runDate)}</td>
-      <td><b>${po?escapeHtml(po.name):'?'}</b><div class="muted">ผลิต ${fmt(r.qty)} ${po?po.unit:''} · ใช้เนื้อ ${fmt(r.contentUsed)} · กระปุก ${fmt(r.packagingUsed)}</div></td>
-      <td>${r.dueDate?fmtDay(r.dueDate):'<span class="muted">—</span>'}</td>
-      <td><span class="chip ${RUN_STATUS_CLS[r.status]||'c-gray'}">${r.status}</span>${remain>0&&r.status!=='วางแผน'?`<div class="muted">รอส่งออก ${fmt(remain)}</div>`:''}</td>
-      <td class="r"><div class="row-actions">
-        ${r.status==="ผลิตเสร็จ"||(r.status==="ส่งออกแล้ว"&&remain>0)?`<button class="btn btn-sm" onclick="shipRun('${r.id}')">🚚 ส่งออก</button>`:''}
-        <button class="icon-btn danger" title="ลบ" onclick="deleteRun('${r.id}')">🗑️</button>
-      </div></td></tr>`;
-  }).join("");
-
-  el.innerHTML = `
-    <div class="panel">
-      <div class="panel-head">
-        <h2>เลือกโรงงาน</h2>
-        <div class="tools">
-          <select onchange="prodFactory=this.value;go('production')" style="padding:8px 12px;border:1px solid var(--line);border-radius:10px;font-family:Prompt;font-weight:600">
-            ${factories.map(f=>`<option value="${f.id}" ${f.id===prodFactory?'selected':''}>${escapeHtml(f.name)}</option>`).join("")}
-          </select>
-        </div>
-      </div>
-      <div class="panel-body" style="padding:16px">
-        <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px">
-          ${stockCol("🧴 เนื้อ/วัตถุดิบ",contents)}
-          ${stockCol("📦 บรรจุภัณฑ์",packs)}
-          ${stockCol("✨ สินค้าสำเร็จรูป",goods)}
-        </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px">
-          <button class="btn" onclick="receiveMaterial()">➕ รับเนื้อ/วัตถุดิบเข้าโรงงาน</button>
-          <button class="btn btn-primary" onclick="produceForm()">🏭 สั่งผลิต</button>
-        </div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-head"><h2>งานผลิตที่ ${escapeHtml(fac.name)} (${runs.length})</h2>
-        <div class="tools"><button class="btn btn-sm" onclick="doExportRuns()">⬇︎ CSV</button></div></div>
-      <div class="panel-body" style="overflow-x:auto">
-        ${runs.length?`<table><thead><tr><th>วันผลิต</th><th>สินค้า</th><th>กำหนดเสร็จ</th><th>สถานะ</th><th></th></tr></thead><tbody>${runRows}</tbody></table>`
-        :`<div class="empty"><div class="big">🏭</div>ยังไม่มีงานผลิตที่โรงงานนี้</div>`}
-      </div>
-    </div>`;
-}
-
-/* ---- รับเนื้อ/วัตถุดิบเข้าโรงงาน ---- */
-function receiveMaterial(){
-  const mats = state.products.filter(p=>p.category==="เนื้อ/วัตถุดิบ" || p.category==="บรรจุภัณฑ์");
-  if(mats.length===0){ toast("ยังไม่มีเนื้อ/วัตถุดิบในรายการของ", true); return; }
-  const fac = locationById(prodFactory);
-  openModal(`
-    <div class="modal-head"><h3>➕ รับเข้า ${escapeHtml(fac.name)}</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="field"><label>ของ <span class="req">*</span></label>
-        <select id="rm-prod">${mats.map(p=>`<option value="${p.id}">${escapeHtml(p.name)} (${p.unit})</option>`).join("")}</select></div>
-      <div class="field"><label>จำนวน (ล็อตที่รับเข้า) <span class="req">*</span></label>
-        <input id="rm-qty" type="number" min="0" step="any" placeholder="เช่น 30000"></div>
-      <div class="field"><label>หมายเหตุ</label><input id="rm-note" placeholder="เช่น ล็อตเนื้อ ก.ค."></div>
-    </div>
-    <div class="modal-foot"><button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveReceiveMaterial()">รับเข้า</button></div>`);
-  setTimeout(()=>document.getElementById("rm-qty").focus(),50);
-}
-function saveReceiveMaterial(){
-  const pid=document.getElementById("rm-prod").value;
-  const qty=Math.abs(parseFloat(document.getElementById("rm-qty").value)||0);
-  const note=document.getElementById("rm-note").value.trim();
-  if(qty<=0){ toast("ใส่จำนวนมากกว่า 0", true); return; }
-  try{ addMovement({productId:pid, locationId:prodFactory, kind:"รับเข้า", qty, reason:"รับเข้าโรงงาน", note}); }
-  catch(e){ toast(e.message,true); return; }
-  save(); closeModal(); toast("รับเข้าโรงงานแล้ว"); go("production");
-}
-
-/* ---- สั่งผลิต (ใช้สูตรคิดเนื้อ/กระปุกอัตโนมัติ) ---- */
-function produceForm(){
-  const goods = state.products.filter(p=>p.category==="สินค้าสำเร็จรูป");
-  if(goods.length===0){ toast("ยังไม่มีสินค้าสำเร็จรูปในรายการของ", true); return; }
-  const withRecipe = goods.filter(p=>p.recipe && (p.recipe.contentId||p.recipe.packagingId));
-  if(withRecipe.length===0){ toast("ตั้งสูตรให้สินค้าสำเร็จรูปก่อน (แก้ไขของ → ประเภทสินค้าสำเร็จรูป)", true); return; }
-  const fac = locationById(prodFactory);
-  const today = new Date().toISOString().slice(0,10);
-  openModal(`
-    <div class="modal-head"><h3>🏭 สั่งผลิต · ${escapeHtml(fac.name)}</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="field"><label>สินค้าที่จะผลิต <span class="req">*</span></label>
-        <select id="pr-prod" onchange="updateProduceCalc()">${withRecipe.map(p=>`<option value="${p.id}">${escapeHtml(p.name)}</option>`).join("")}</select></div>
-      <div class="frow">
-        <div class="field"><label>จำนวนที่ผลิต <span class="req">*</span></label>
-          <input id="pr-qty" type="number" min="0" step="any" placeholder="เช่น 20000" oninput="updateProduceCalc()"></div>
-        <div class="field"><label>กำหนดเสร็จ</label><input id="pr-due" type="date"></div>
-      </div>
-      <div style="background:#f6f8fc;border-radius:11px;padding:12px 14px;margin-bottom:12px">
-        <div style="font-weight:700;font-size:13px;margin-bottom:8px">🧪 ตามสูตร ระบบจะตัด</div>
-        <div class="frow">
-          <div class="field" style="margin:0"><label>ใช้เนื้อ (แก้ได้)</label><input id="pr-content" type="number" min="0" step="any"></div>
-          <div class="field" style="margin:0"><label>ใช้บรรจุภัณฑ์ (แก้ได้)</label><input id="pr-pack" type="number" min="0" step="any"></div>
-        </div>
-        <div class="hint" id="pr-hint" style="margin-top:10px"></div>
-      </div>
-    </div>
-    <div class="modal-foot"><button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveProduce()">✓ ผลิตเสร็จ</button></div>`);
-  document.getElementById("pr-due").value = today;
-  updateProduceCalc(true);
-  setTimeout(()=>document.getElementById("pr-qty").focus(),50);
-}
-let _prLastAutoContent=0, _prLastAutoPack=0;
-function updateProduceCalc(resetOverride){
-  const p = productById(document.getElementById("pr-prod").value);
-  const qty = Math.abs(parseFloat(document.getElementById("pr-qty").value)||0);
-  const rc = p.recipe||{};
-  const autoContent = +(qty*(rc.contentPerUnit||0)).toFixed(4);
-  const autoPack = +(qty*(rc.packagingPerUnit||0)).toFixed(4);
-  const cEl=document.getElementById("pr-content"), kEl=document.getElementById("pr-pack");
-  // เติมค่าอัตโนมัติ ถ้าผู้ใช้ยังไม่ได้แก้เอง (ค่าปัจจุบัน = ค่าออโต้ก่อนหน้า)
-  if(resetOverride || cEl.value==="" || parseFloat(cEl.value)===_prLastAutoContent) cEl.value = autoContent||"";
-  if(resetOverride || kEl.value==="" || parseFloat(kEl.value)===_prLastAutoPack) kEl.value = autoPack||"";
-  _prLastAutoContent=autoContent; _prLastAutoPack=autoPack;
-  const cUse=parseFloat(cEl.value)||0, kUse=parseFloat(kEl.value)||0;
-  const cP=rc.contentId?productById(rc.contentId):null, kP=rc.packagingId?productById(rc.packagingId):null;
-  const cBal=cP?balanceOf(cP.id,prodFactory):0, kBal=kP?balanceOf(kP.id,prodFactory):0;
-  const cBad=cP&&cUse>cBal, kBad=kP&&kUse>kBal;
-  const line=(prod,use,bal,bad)=> prod?`<div>${escapeHtml(prod.name)}: ตัด <b>${fmt(use)}</b> จาก ${fmt(bal)} → <b style="color:${bad?'var(--danger)':'var(--ok)'}">${fmt(bal-use)}</b> ${prod.unit}${bad?' ⚠️ไม่พอ':''}</div>`:'';
-  document.getElementById("pr-hint").innerHTML =
-    line(cP,cUse,cBal,cBad) + line(kP,kUse,kBal,kBad) +
-    `<div style="margin-top:4px">ได้สินค้า <b style="color:var(--accent)">${escapeHtml(p.name)} +${fmt(qty)} ${p.unit}</b> ที่โรงงานนี้</div>`;
-}
-function saveProduce(){
-  const p = productById(document.getElementById("pr-prod").value);
-  const qty = Math.abs(parseFloat(document.getElementById("pr-qty").value)||0);
-  const due = document.getElementById("pr-due").value;
-  const cUse = Math.abs(parseFloat(document.getElementById("pr-content").value)||0);
-  const kUse = Math.abs(parseFloat(document.getElementById("pr-pack").value)||0);
-  if(qty<=0){ toast("ใส่จำนวนที่ผลิตมากกว่า 0", true); return; }
-  const rc=p.recipe||{};
-  const cP=rc.contentId?productById(rc.contentId):null, kP=rc.packagingId?productById(rc.packagingId):null;
-  // เช็คพอก่อน (กันติดลบ)
-  if(cP && cUse>balanceOf(cP.id,prodFactory)){ toast(`เนื้อไม่พอ — ${cP.name} เหลือ ${fmt(balanceOf(cP.id,prodFactory))} ${cP.unit}`, true); return; }
-  if(kP && kUse>balanceOf(kP.id,prodFactory)){ toast(`บรรจุภัณฑ์ไม่พอ — ${kP.name} เหลือ ${fmt(balanceOf(kP.id,prodFactory))} ${kP.unit}`, true); return; }
-  try{
-    const runId = uid("RUN");
-    if(cP && cUse>0) addMovement({productId:cP.id, locationId:prodFactory, kind:"ตัดออก", qty:cUse, reason:"เบิกไปผลิต", note:p.name, refType:"RUN", refId:runId});
-    if(kP && kUse>0) addMovement({productId:kP.id, locationId:prodFactory, kind:"ตัดออก", qty:kUse, reason:"เบิกไปผลิต", note:p.name, refType:"RUN", refId:runId});
-    addMovement({productId:p.id, locationId:prodFactory, kind:"รับเข้า", qty, reason:"ผลิตเสร็จ", refType:"RUN", refId:runId});
-    state.productionRuns.push({id:runId, factoryId:prodFactory, productOutId:p.id, qty,
-      contentUsed:cUse, packagingUsed:kUse, runDate:new Date().toISOString(), dueDate:due||null,
-      shippedQty:0, status:"ผลิตเสร็จ", note:""});
-  }catch(e){ toast(e.message,true); return; }
-  save(); closeModal(); toast("ผลิตเสร็จ — สินค้าเข้าสต๊อกโรงงานแล้ว"); go("production");
-}
-
-/* ---- ส่งออกจากโรงงาน ---- */
-function shipRun(id){
-  const r = state.productionRuns.find(x=>x.id===id); if(!r) return;
-  const p = productById(r.productOutId);
-  const remain = r.qty - (r.shippedQty||0);
-  const bal = balanceOf(r.productOutId, r.factoryId);
-  const maxShip = Math.min(remain, bal);
-  const ourWh = state.locations.filter(l=>l.kind==="คลังเรา");
-  const destOpts = `<option value="__out">ส่งออกให้ลูกค้า (ออกจากระบบ)</option>` +
-    ourWh.map(l=>`<option value="${l.id}">ย้ายเข้า ${escapeHtml(l.name)}</option>`).join("");
-  openModal(`
-    <div class="modal-head"><h3>🚚 ส่งออก ${escapeHtml(p?p.name:'')}</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="hint" style="background:#f6f8fc;border-radius:9px;padding:10px 12px;margin-bottom:12px">
-        ที่โรงงานเหลือ <b>${fmt(bal)} ${p?p.unit:''}</b> · รอส่งออก ${fmt(remain)} ${p?p.unit:''}</div>
-      <div class="field"><label>ปลายทาง</label><select id="sh-dest">${destOpts}</select></div>
-      <div class="field"><label>จำนวนที่ส่งออก <span class="req">*</span></label>
-        <input id="sh-qty" type="number" min="0" step="any" value="${maxShip}"></div>
-    </div>
-    <div class="modal-foot"><button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveShip('${id}')">ส่งออก</button></div>`);
-}
-function saveShip(id){
-  const r = state.productionRuns.find(x=>x.id===id); if(!r) return;
-  const qty = Math.abs(parseFloat(document.getElementById("sh-qty").value)||0);
-  const dest = document.getElementById("sh-dest").value;
-  if(qty<=0){ toast("ใส่จำนวนมากกว่า 0", true); return; }
-  try{
-    if(dest==="__out"){
-      addMovement({productId:r.productOutId, locationId:r.factoryId, kind:"ตัดออก", qty, reason:"ส่งออกให้ลูกค้า", refType:"RUN", refId:r.id});
-    }else{
-      transfer({productId:r.productOutId, fromLoc:r.factoryId, toLoc:dest, qty, note:"ส่งออกจากโรงงาน", refType:"RUN", refId:r.id});
-    }
-  }catch(e){ toast(e.message,true); return; }
-  r.shippedQty = (r.shippedQty||0) + qty;
-  if(r.shippedQty>=r.qty) r.status="ส่งออกแล้ว";
-  save(); closeModal(); toast("ส่งออกแล้ว"); go("production");
-}
-function deleteRun(id){
-  const r = state.productionRuns.find(x=>x.id===id); if(!r) return;
-  openModal(`
-    <div class="modal-head"><h3>ลบงานผลิต?</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">ลบรายการงานผลิตนี้ออกจากลิสต์? <div class="hint" style="margin-top:6px">หมายเหตุ: การเคลื่อนไหวสต๊อก (ตัดเนื้อ/รับสินค้า) ที่บันทึกไว้จะยังคงอยู่ในประวัติ</div></div>
-    <div class="modal-foot"><button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmDeleteRun('${id}')">ลบเลย</button></div>`);
-}
-function confirmDeleteRun(id){
-  state.productionRuns = state.productionRuns.filter(x=>x.id!==id);
-  save(); closeModal(); toast("ลบงานผลิตแล้ว"); go("production");
-}
-function doExportRuns(){
-  const rows=[["วันผลิต","โรงงาน","สินค้า","จำนวนผลิต","เนื้อที่ใช้","บรรจุภัณฑ์ที่ใช้","ส่งออกแล้ว","สถานะ","กำหนดเสร็จ"]];
-  state.productionRuns.forEach(r=>{ const p=productById(r.productOutId), f=locationById(r.factoryId);
-    rows.push([fmtDay(r.runDate), f?f.name:'', p?p.name:'', r.qty, r.contentUsed, r.packagingUsed, r.shippedQty||0, r.status, r.dueDate?fmtDay(r.dueDate):'']); });
-  exportCSV("antheara-งานผลิต.csv", rows);
-}
-let historyFilter = {product:"", location:"", kind:""};
-const REASON_IN = ["ซื้อเข้า","ผลิตเสร็จ","รับคืน","ปรับยอดเพิ่ม","อื่นๆ"];
-const REASON_OUT = ["ขาย","เบิกไปผลิต","ของเสีย/หมดอายุ","ปรับยอดลด","อื่นๆ"];
-
-function filteredMovements(){
-  return state.movements.filter(m=>{
-    if(historyFilter.product && m.productId!==historyFilter.product) return false;
-    if(historyFilter.location && m.locationId!==historyFilter.location) return false;
-    if(historyFilter.kind && m.kind!==historyFilter.kind) return false;
-    return true;
-  }).sort((a,b)=> new Date(b.at)-new Date(a.at));
-}
-
-function renderHistory(el){
-  const ms = filteredMovements();
-  const rows = ms.map(m=>{ const p=productById(m.productId), l=locationById(m.locationId);
-    const sign = m.kind==="รับเข้า"?"+":"−"; const cls = m.kind==="รับเข้า"?"c-ok":"c-danger";
-    const ref = m.refType==="PO"?' <span class="tag">ใบสั่ง</span>' : m.refType==="RUN"?' <span class="tag">งานผลิต</span>' : '';
-    return `<tr><td class="muted" style="white-space:nowrap">${fmtDate(m.at)}</td><td><b>${p?escapeHtml(p.name):'?'}</b></td>
-      <td>${l?escapeHtml(l.name):'?'}</td><td>${escapeHtml(m.reason)}${ref}${m.note?` <span class="muted">· ${escapeHtml(m.note)}</span>`:''}</td>
-      <td class="r"><span class="chip ${cls}">${sign}${fmt(m.qty)} ${p?p.unit:''}</span></td>
-      <td class="r"><div class="row-actions">
-        <button class="icon-btn" title="แก้ไข" onclick="editMovement('${m.id}')">✏️</button>
-        <button class="icon-btn danger" title="ลบ" onclick="deleteMovement('${m.id}')">🗑️</button>
-      </div></td></tr>`;
-  }).join("");
-  const opt = (val,label,cur)=>`<option value="${val}" ${cur===val?"selected":""}>${label}</option>`;
-  el.innerHTML = `
-    <div class="panel">
-      <div class="panel-head">
-        <h2>บันทึกการเคลื่อนไหว</h2>
-        <div class="tools">
-          <button class="btn btn-sm" onclick="moveForm('รับเข้า')">➕ รับเข้า</button>
-          <button class="btn btn-sm" onclick="moveForm('ตัดออก')">➖ ตัดออก</button>
-          <button class="btn btn-primary btn-sm" onclick="moveForm('ย้าย')">⇄ ย้ายที่</button>
-        </div>
-      </div>
-      <div class="panel-body" style="padding:14px 16px">
-        <div class="frow" style="grid-template-columns:1fr 1fr 1fr auto;align-items:end;gap:10px">
-          <div class="field" style="margin:0"><label>กรองตามของ</label>
-            <select onchange="historyFilter.product=this.value;go('history')">
-              ${opt("","ทั้งหมด",historyFilter.product)}
-              ${state.products.map(p=>opt(p.id,escapeHtml(p.name),historyFilter.product)).join("")}
-            </select></div>
-          <div class="field" style="margin:0"><label>กรองตามที่</label>
-            <select onchange="historyFilter.location=this.value;go('history')">
-              ${opt("","ทั้งหมด",historyFilter.location)}
-              ${state.locations.map(l=>opt(l.id,escapeHtml(l.name),historyFilter.location)).join("")}
-            </select></div>
-          <div class="field" style="margin:0"><label>กรองตามชนิด</label>
-            <select onchange="historyFilter.kind=this.value;go('history')">
-              ${opt("","ทั้งหมด",historyFilter.kind)}
-              ${opt("รับเข้า","รับเข้า",historyFilter.kind)}
-              ${opt("ตัดออก","ตัดออก",historyFilter.kind)}
-            </select></div>
-          <button class="btn btn-sm" onclick="doExportHistory()">⬇︎ CSV</button>
-        </div>
-      </div>
-    </div>
-    <div class="panel">
-      <div class="panel-head"><h2>ประวัติ (${ms.length} รายการ)</h2></div>
-      <div class="panel-body" style="overflow-x:auto">
-        ${ms.length?`<table><thead><tr><th>เวลา</th><th>ของ</th><th>ที่</th><th>เหตุผล</th><th class="r">จำนวน</th><th></th></tr></thead><tbody>${rows}</tbody></table>`
-        :`<div class="empty"><div class="big">📜</div>ยังไม่มีการเคลื่อนไหว${(historyFilter.product||historyFilter.location||historyFilter.kind)?" ตามตัวกรองนี้":""}</div>`}
-      </div>
-    </div>`;
-}
-
-/* ---- ฟอร์มบันทึกการเคลื่อนไหว (kind = รับเข้า / ตัดออก / ย้าย) ---- */
-function moveForm(kind){
-  if(state.products.length===0){ toast("เพิ่มรายการของก่อน", true); return; }
-  if(state.locations.length===0){ toast("เพิ่มที่เก็บของก่อน", true); return; }
-  const isMove = kind==="ย้าย";
-  const title = kind==="รับเข้า"?"➕ รับของเข้า" : kind==="ตัดออก"?"➖ ตัดของออก" : "⇄ ย้ายของข้ามที่";
-  const reasons = kind==="รับเข้า"?REASON_IN:REASON_OUT;
-  const prodOpts = state.products.map(p=>`<option value="${p.id}">${escapeHtml(p.name)} (${p.unit})</option>`).join("");
-  const locOpts = state.locations.map(l=>`<option value="${l.id}">${escapeHtml(l.name)}</option>`).join("");
-  openModal(`
-    <div class="modal-head"><h3>${title}</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="field"><label>ของ <span class="req">*</span></label>
-        <select id="m-prod" onchange="updateMoveHint('${kind}')">${prodOpts}</select></div>
-      ${isMove? `
-        <div class="frow">
-          <div class="field"><label>จากที่ <span class="req">*</span></label><select id="m-from" onchange="updateMoveHint('${kind}')">${locOpts}</select></div>
-          <div class="field"><label>ไปที่ <span class="req">*</span></label><select id="m-to" onchange="updateMoveHint('${kind}')">${locOpts}</select></div>
-        </div>`
-      : `<div class="field"><label>ที่ <span class="req">*</span></label><select id="m-loc" onchange="updateMoveHint('${kind}')">${locOpts}</select></div>`}
-      <div class="frow">
-        <div class="field"><label>จำนวน <span class="req">*</span></label>
-          <input id="m-qty" type="number" min="0" step="any" placeholder="0" oninput="updateMoveHint('${kind}')"></div>
-        ${isMove?`<div class="field"></div>`:`<div class="field"><label>เหตุผล</label>
-          <select id="m-reason">${reasons.map(r=>`<option>${r}</option>`).join("")}</select></div>`}
-      </div>
-      <div class="field"><label>หมายเหตุ</label><input id="m-note" placeholder="ไม่บังคับ"></div>
-      <div class="hint" id="m-hint" style="background:#f6f8fc;border-radius:9px;padding:10px 12px"></div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveMove('${kind}')">บันทึก</button>
-    </div>`);
-  // ตั้งที่ปลายทางเริ่มต้นให้ต่างจากต้นทาง
-  if(isMove && state.locations.length>1){ const to=document.getElementById("m-to"); to.selectedIndex=1; }
-  updateMoveHint(kind);
-  setTimeout(()=>document.getElementById("m-qty").focus(),50);
-}
-function updateMoveHint(kind){
-  const pid = document.getElementById("m-prod").value;
-  const p = productById(pid); const unit = p?p.unit:"";
-  const qty = Math.abs(parseFloat(document.getElementById("m-qty").value)||0);
-  const hint = document.getElementById("m-hint");
-  if(kind==="ย้าย"){
-    const from=document.getElementById("m-from").value, to=document.getElementById("m-to").value;
-    const bf=balanceOf(pid,from), bt=balanceOf(pid,to);
-    const lf=locationById(from), lt=locationById(to);
-    const bad = qty>bf;
-    hint.innerHTML = `<b>${lf?escapeHtml(lf.name):''}</b>: ${fmt(bf)} → <b style="color:${bad?'var(--danger)':'inherit'}">${fmt(bf-qty)}</b> ${unit}
-      &nbsp;·&nbsp; <b>${lt?escapeHtml(lt.name):''}</b>: ${fmt(bt)} → <b>${fmt(bt+qty)}</b> ${unit}
-      ${bad?`<div style="color:var(--danger);font-weight:700;margin-top:4px">⚠️ ของไม่พอที่ต้นทาง</div>`:""}`;
-  }else{
-    const loc=document.getElementById("m-loc").value;
-    const b=balanceOf(pid,loc); const l=locationById(loc);
-    const after = kind==="รับเข้า"? b+qty : b-qty;
-    const bad = kind==="ตัดออก" && qty>b;
-    hint.innerHTML = `คงเหลือที่ <b>${l?escapeHtml(l.name):''}</b>: ${fmt(b)} → <b style="color:${bad?'var(--danger)':'var(--accent)'}">${fmt(after)}</b> ${unit}
-      ${bad?`<div style="color:var(--danger);font-weight:700;margin-top:4px">⚠️ ตัดออกเกินของที่มี</div>`:""}`;
-  }
-}
-function saveMove(kind){
-  const pid = document.getElementById("m-prod").value;
-  const qty = Math.abs(parseFloat(document.getElementById("m-qty").value)||0);
-  const note = document.getElementById("m-note").value.trim();
-  if(qty<=0){ toast("ใส่จำนวนมากกว่า 0", true); return; }
-  try{
-    if(kind==="ย้าย"){
-      const from=document.getElementById("m-from").value, to=document.getElementById("m-to").value;
-      transfer({productId:pid, fromLoc:from, toLoc:to, qty, note});
-      toast("ย้ายของแล้ว");
-    }else{
-      const loc=document.getElementById("m-loc").value;
-      const reason=document.getElementById("m-reason").value;
-      addMovement({productId:pid, locationId:loc, kind, qty, reason, note});
-      toast(kind==="รับเข้า"?"รับเข้าแล้ว":"ตัดออกแล้ว");
-    }
-    save(); closeModal(); go("history");
-  }catch(e){ toast(e.message, true); }
-}
-function doExportHistory(){
-  const rows = [["เวลา","ของ","ที่","ชนิด","เหตุผล","หมายเหตุ","จำนวน","หน่วย"]];
-  filteredMovements().forEach(m=>{ const p=productById(m.productId), l=locationById(m.locationId);
-    rows.push([fmtDate(m.at), p?p.name:'', l?l.name:'', m.kind, m.reason, m.note, m.qty, p?p.unit:'']); });
-  exportCSV("antheara-ประวัติการเคลื่อนไหว.csv", rows);
-}
-
-/* ---- แก้ไข / ลบ รายการเคลื่อนไหว ---- */
-function editMovement(id){
-  const m = state.movements.find(x=>x.id===id); if(!m) return;
-  const p=productById(m.productId), l=locationById(m.locationId);
-  const reasons = m.kind==="รับเข้า"?REASON_IN:REASON_OUT;
-  const reasonInList = reasons.includes(m.reason);
-  openModal(`
-    <div class="modal-head"><h3>แก้ไขรายการ</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      <div class="hint" style="background:#f6f8fc;border-radius:9px;padding:10px 12px;margin-bottom:12px">
-        <b>${p?escapeHtml(p.name):'?'}</b> · ${l?escapeHtml(l.name):'?'} · <span class="chip ${m.kind==='รับเข้า'?'c-ok':'c-danger'}">${m.kind}</span>
-        ${m.refType?`<div style="margin-top:6px;color:var(--warn)">⚠️ รายการนี้มาจาก${m.refType==='PO'?'ใบสั่ง':'งานผลิต'} — แก้ตรงนี้จะไม่กระทบเอกสารต้นทาง</div>`:''}
-      </div>
-      <div class="frow">
-        <div class="field"><label>จำนวน <span class="req">*</span></label>
-          <input id="em-qty" type="number" min="0" step="any" value="${m.qty}"></div>
-        <div class="field"><label>เหตุผล</label>
-          <select id="em-reason">${reasons.map(r=>`<option ${r===m.reason?'selected':''}>${r}</option>`).join("")}${reasonInList?'':`<option selected>${escapeHtml(m.reason)}</option>`}</select></div>
-      </div>
-      <div class="field"><label>หมายเหตุ</label><input id="em-note" value="${escapeAttr(m.note||'')}" placeholder="ไม่บังคับ"></div>
-      <div class="hint" id="em-hint" style="margin-top:4px"></div>
-    </div>
-    <div class="modal-foot"><button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" onclick="saveEditMovement('${id}')">บันทึก</button></div>`);
-  setTimeout(()=>document.getElementById("em-qty").focus(),50);
-}
-function saveEditMovement(id){
-  const m = state.movements.find(x=>x.id===id); if(!m) return;
-  const qty = Math.abs(parseFloat(document.getElementById("em-qty").value)||0);
-  if(qty<=0){ toast("จำนวนต้องมากกว่า 0", true); return; }
-  // กันติดลบ: ถ้าเป็นตัดออก ยอดใหม่ต้องไม่เกินคงเหลือ (คิดจากยอดปัจจุบัน "ไม่รวม" รายการนี้)
-  if(m.kind==="ตัดออก"){
-    const others = balanceOf(m.productId, m.locationId) + m.qty; // บวกกลับรายการเดิม
-    if(qty>others){ const p=productById(m.productId), l=locationById(m.locationId);
-      toast(`ของไม่พอ — ${p?p.name:''} ที่ ${l?l.name:''} มีให้ตัดได้ ${fmt(others)} ${p?p.unit:''}`, true); return; }
-  }
-  m.qty = qty;
-  m.reason = document.getElementById("em-reason").value;
-  m.note = document.getElementById("em-note").value.trim();
-  save(); closeModal(); toast("บันทึกการแก้ไขแล้ว"); go("history");
-}
-function deleteMovement(id){
-  const m = state.movements.find(x=>x.id===id); if(!m) return;
-  const p=productById(m.productId), l=locationById(m.locationId);
-  const sign = m.kind==="รับเข้า"?"+":"−";
-  openModal(`
-    <div class="modal-head"><h3>ลบรายการเคลื่อนไหว?</h3><button class="x" onclick="closeModal()">×</button></div>
-    <div class="modal-body">
-      ลบ <b>${p?escapeHtml(p.name):'?'}</b> ${sign}${fmt(m.qty)} ${p?p.unit:''} ที่ ${l?escapeHtml(l.name):'?'} ใช่ไหม?
-      <div class="hint" style="margin-top:8px;color:var(--danger)">⚠️ ยอดคงเหลือจะถูกคำนวณใหม่ตามรายการที่เหลือ${m.refType?' · รายการนี้มาจาก'+(m.refType==='PO'?'ใบสั่ง':'งานผลิต')+' การลบจะไม่ลบเอกสารต้นทาง':''}</div>
-    </div>
-    <div class="modal-foot"><button class="btn" onclick="closeModal()">ยกเลิก</button>
-      <button class="btn btn-primary" style="background:var(--danger);border-color:var(--danger)" onclick="confirmDeleteMovement('${id}')">ลบเลย</button></div>`);
-}
-function confirmDeleteMovement(id){
-  state.movements = state.movements.filter(x=>x.id!==id);
-  save(); closeModal(); toast("ลบรายการแล้ว"); go("history");
-}
-
-/* =========================================================
-   sidebar mobile
-   ========================================================= */
-function openSidebar(){ document.getElementById("sidebar").classList.add("open"); document.getElementById("backdrop").classList.add("show"); }
-function closeSidebar(){ document.getElementById("sidebar").classList.remove("open"); document.getElementById("backdrop").classList.remove("show"); }
-
-/* =========================================================
-   INIT
-   ========================================================= */
-document.getElementById("nav").addEventListener("click", e=>{
-  const a = e.target.closest("a[data-route]"); if(!a) return;
-  e.preventDefault(); go(a.dataset.route);
-});
-document.getElementById("burger").addEventListener("click", openSidebar);
-document.getElementById("backdrop").addEventListener("click", closeSidebar);
+document.getElementById("modalBg").addEventListener("mousedown",e=>{if(e.target.id==="modalBg")closeModal();});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeModal();});
+let _tt=null; function toast(m,err){ const t=document.getElementById("toast"); t.textContent=m; t.className="toast show"+(err?" err":""); clearTimeout(_tt); _tt=setTimeout(()=>t.className="toast"+(err?" err":""),2200); }
 
 boot();
 </script>
