@@ -115,6 +115,29 @@
     </div>
   </div>
 
+  <!-- ตาราง: วัตถุดิบคงเหลือที่โรงงาน -->
+  <div class="panel">
+    <div class="ph">
+      <h2>🧪 วัตถุดิบคงเหลือ (ที่โรงงาน)</h2>
+      <div class="tools">
+        <button class="btn btn-sm" onclick="exportMats()">⬇︎ CSV</button>
+        <button class="btn btn-primary btn-sm" onclick="addMat()">+ เพิ่มวัตถุดิบ</button>
+      </div>
+    </div>
+    <div class="scroll">
+      <table>
+        <thead><tr>
+          <th>วัตถุดิบ</th>
+          <th>โรงงาน</th>
+          <th class="r" style="width:150px">คงเหลือ</th>
+          <th style="width:90px">หน่วย</th>
+          <th></th>
+        </tr></thead>
+        <tbody id="matsBody"></tbody>
+      </table>
+    </div>
+  </div>
+
   <!-- ตาราง 2: เงินที่สั่งแต่ละรอบ -->
   <div class="panel">
     <div class="ph">
@@ -149,14 +172,14 @@ const SUPABASE_URL="https://hddwywofpqqlufslshaq.supabase.co";
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkZHd5d29mcHFxbHVmc2xzaGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTMwNTQsImV4cCI6MjEwMDg4OTA1NH0.MqxmX9uv78NkVw7c-E9hZfONt19yW3HX1-XpOv_4AMw";
 const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
 
-let state={rounds:[],payments:[],_v:3};
+let state={rounds:[],materials:[],payments:[],_v:3};
 
 /* เก็บข้อมูลรูปแบบก่อนหน้าไว้กันหาย (products/items เดิม) */
 function migrate(s){
-  if(!s||typeof s!=="object") return {rounds:[],payments:[],_v:3};
-  if(Array.isArray(s.rounds)) { s.payments=s.payments||[]; return s; }
+  if(!s||typeof s!=="object") return {rounds:[],materials:[],payments:[],_v:3};
+  if(Array.isArray(s.rounds)) { s.payments=s.payments||[]; s.materials=s.materials||[]; return s; }
   const legacy = s._legacy || {products:s.products,items:s.items,movements:s.movements,locations:s.locations,purchaseOrders:s.purchaseOrders,productionRuns:s.productionRuns};
-  return {rounds:[],payments:[],_v:3,_legacy:legacy};
+  return {rounds:[],materials:[],payments:[],_v:3,_legacy:legacy};
 }
 
 function setSync(t,c){const e=document.getElementById("sync");if(e){e.textContent=t;e.className="sync "+(c||"");}}
@@ -194,6 +217,19 @@ const oweOf=r=>Math.max(0,(r.done||0)-(r.received||0));
 
 /* ===== render ===== */
 function render(){
+  state.rounds=state.rounds||[]; state.materials=state.materials||[]; state.payments=state.payments||[];
+  // วัตถุดิบคงเหลือที่โรงงาน
+  const mb=document.getElementById("matsBody");
+  const plantsM=[...new Set([...state.rounds.map(r=>r.plant),...state.materials.map(m=>m.plant)].filter(Boolean))];
+  const dlM=`<datalist id="plants">${plantsM.map(p=>`<option value="${esc(p)}">`).join("")}</datalist>`;
+  mb.innerHTML = dlM + (state.materials.length? state.materials.map(m=>`<tr>
+      <td class="namecol"><input class="cell name" value="${esc(m.name)}" placeholder="เช่น เนื้อสครับ / กระปุก AHA" oninput="mSet('${m.id}','name',this.value)"></td>
+      <td class="namecol"><input class="cell name" list="plants" value="${esc(m.plant)}" placeholder="โรงงาน" oninput="mSet('${m.id}','plant',this.value)"></td>
+      <td class="num" style="width:150px"><input class="cell" type="number" step="any" value="${m.qty||''}" placeholder="0" oninput="mSet('${m.id}','qty',this.value)"></td>
+      <td style="width:90px"><input class="cell name" value="${esc(m.unit)}" placeholder="โล/ใบ" oninput="mSet('${m.id}','unit',this.value)"></td>
+      <td><button class="icon-btn" title="ลบ" onclick="delMat('${m.id}')">🗑️</button></td>
+    </tr>`).join("") : `<tr><td colspan="5"><div class="empty">ยังไม่มีวัตถุดิบ — กด “+ เพิ่มวัตถุดิบ”</div></td></tr>`);
+
   const rb=document.getElementById("roundsBody");
   const plants=[...new Set(state.rounds.map(r=>r.plant).filter(Boolean))];
   const plantList=`<datalist id="plants">${plants.map(p=>`<option value="${esc(p)}">`).join("")}</datalist>`;
@@ -244,6 +280,12 @@ function delRound(id){ state.rounds=state.rounds.filter(r=>r.id!==id); save(); r
 function pSet(id,f,v){ const p=state.payments.find(x=>x.id===id);if(!p)return; if(f==='amount')p.amount=Math.max(0,parseFloat(v)||0);else p[f]=v; if(f==='amount'){render();} else save(); if(f==='amount')save(); }
 function addPay(){ const today=new Date().toISOString().slice(0,10); state.payments.push({id:uid('M'),date:today,note:'',amount:0}); save(); render(); }
 function delPay(id){ state.payments=state.payments.filter(p=>p.id!==id); save(); render(); toast("ลบรายการแล้ว"); }
+
+/* ===== materials (วัตถุดิบที่โรงงาน) ===== */
+function mSet(id,f,v){ const m=state.materials.find(x=>x.id===id); if(!m)return; if(f==='qty')m.qty=Math.max(0,parseFloat(v)||0);else m[f]=v; save(); }
+function addMat(){ state.materials.push({id:uid('T'),name:'',plant:'',qty:0,unit:''}); save(); render(); setTimeout(()=>{const i=document.querySelectorAll('#matsBody tr .cell.name');if(i.length)i[(state.materials.length-1)*3]&&i[(state.materials.length-1)*3].focus();},50); }
+function delMat(id){ state.materials=state.materials.filter(m=>m.id!==id); save(); render(); toast("ลบวัตถุดิบแล้ว"); }
+function exportMats(){ const rows=[["วัตถุดิบ","โรงงาน","คงเหลือ","หน่วย"]]; state.materials.forEach(m=>rows.push([m.name,m.plant||'',m.qty||0,m.unit||''])); dl("antheara-วัตถุดิบคงเหลือ.csv",rows); }
 
 /* ===== CSV ===== */
 function dl(name,rows){const csv=rows.map(r=>r.map(c=>{const s=String(c==null?"":c);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s;}).join(",")).join("\n");const b=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8;"}),u=URL.createObjectURL(b),a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),500);}
