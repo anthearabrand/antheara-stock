@@ -149,15 +149,15 @@ const SUPABASE_URL="https://hddwywofpqqlufslshaq.supabase.co";
 const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ 9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkZHd5d29mcHFxbHVmc2xzaGFxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMTMwNTQsImV4cCI6MjEwMDg4OTA1NH0.MqxmX9uv78NkVw7c-E9hZfONt19yW3HX1-XpOv_4AMw".replace(/\s/g,'');
 const sb=window.supabase?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
 
-let state={materials:[],finished:[],warehouse:[],recipes:{},productions:[],payments:[],_v:6};
+let state={materials:[],finished:[],warehouse:[],shipments:[],recipes:{},productions:[],payments:[],_v:6};
 
 function migrate(s){
-  if(!s||typeof s!=="object") return {materials:[],finished:[],warehouse:[],recipes:{},productions:[],payments:[],_v:6};
-  if(s._v===6||s._v===5||s._v===4){ s.materials=s.materials||[];s.finished=s.finished||[];s.warehouse=s.warehouse||[];s.recipes=s.recipes||{};s.productions=s.productions||[];s.payments=s.payments||[];s._v=6; return s; }
+  if(!s||typeof s!=="object") return {materials:[],finished:[],warehouse:[],shipments:[],recipes:{},productions:[],payments:[],_v:6};
+  if(s._v===6||s._v===5||s._v===4){ s.materials=s.materials||[];s.finished=s.finished||[];s.warehouse=s.warehouse||[];s.shipments=s.shipments||[];s.recipes=s.recipes||{};s.productions=s.productions||[];s.payments=s.payments||[];s._v=6; return s; }
   const materials=Array.isArray(s.materials)?s.materials.map(m=>({id:m.id,name:m.name,plant:m.plant||'',qty:m.qty||0,unit:m.unit||'',reorder:m.reorder||0})):[];
   const payments=Array.isArray(s.payments)?s.payments:[];
   const legacy=s._legacy||{rounds:s.rounds,products:s.products,items:s.items,movements:s.movements,locations:s.locations};
-  return {materials,finished:[],warehouse:[],recipes:{},productions:[],payments,_v:6,_legacy:legacy};
+  return {materials,finished:[],warehouse:[],shipments:[],recipes:{},productions:[],payments,_v:6,_legacy:legacy};
 }
 
 function setSync(t,c){const e=document.getElementById("sync");if(e){e.textContent=t;e.className="sync "+(c||"");}}
@@ -316,11 +316,24 @@ function whTable(){
     </tr>`;}).join("") : `<tr><td colspan="6"><div class="empty">ยังไม่มีสินค้าที่คลังรังสิต — กด “🚚 ส่งสินค้าเข้าคลัง”</div></td></tr>`}</tbody></table></div>`;
 }
 function renderWh(el){
+  const ships=[...(state.shipments||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||'')||0);
   el.innerHTML=`<div class="panel">
     <div class="ph"><h2>🏬 คลังรังสิต <span class="sub">สินค้าพร้อมขาย (ส่งมาจากโรงงาน)</span></h2>
       <div class="tools"><button class="btn btn-sm" onclick="exportWh()">⬇︎ CSV</button><button class="btn btn-sm" onclick="addWh()">+ เพิ่มสินค้า</button><button class="btn btn-primary btn-sm" onclick="shipToWh()">🚚 ส่งสินค้าเข้าคลัง</button></div></div>
-    ${whTable()}</div>`;
+    ${whTable()}</div>
+    <div class="panel">
+      <div class="ph"><h2>📅 ประวัติการส่งเข้าคลัง</h2>${ships.length?`<div class="tools"><button class="btn btn-sm" onclick="exportShips()">⬇︎ CSV</button></div>`:''}</div>
+      <div class="scroll"><table><thead><tr><th style="width:130px">วันที่</th><th>สินค้า</th><th class="r">จำนวนที่ส่ง</th><th></th></tr></thead>
+      <tbody>${ships.length? ships.map(s=>`<tr><td class="muted" style="white-space:nowrap">${esc(fmtD(s.date))}</td><td><b>${esc(s.product)}</b></td><td class="r"><b>${fmt(s.qty)}</b> ${esc(s.unit)}</td><td><button class="icon-btn" title="ยกเลิก (คืนของกลับโรงงาน)" onclick="delShip('${s.id}')">↩︎</button></td></tr>`).join("") : `<tr><td colspan="4"><div class="empty">ยังไม่มีการส่งเข้าคลัง — กด “🚚 ส่งสินค้าเข้าคลัง”</div></td></tr>`}</tbody></table></div>
+    </div>`;
 }
+function fmtD(d){if(!d)return'';const p=(d||'').split('-');return p.length===3?`${p[2]}/${p[1]}/${(parseInt(p[0])+543)%100}`:d;}
+function delShip(id){const s=(state.shipments||[]).find(x=>x.id===id);if(!s)return;
+  let f=finByName(s.product);if(f){f.qty=(f.qty||0)+s.qty;}else{state.finished.push({id:uid('F'),name:s.product,qty:s.qty,unit:s.unit,reorder:0});}
+  let w=state.warehouse.find(x=>(x.name||'').trim()===(s.product||'').trim());if(w)w.qty=Math.max(0,(w.qty||0)-s.qty);
+  state.shipments=state.shipments.filter(x=>x.id!==id);
+  save();go('wh');toast("ยกเลิกการส่งแล้ว — คืนของกลับโรงงาน");}
+function exportShips(){const r=[["วันที่","สินค้า","จำนวนที่ส่ง","หน่วย"]];[...(state.shipments||[])].sort((a,b)=>(b.date||'').localeCompare(a.date||'')).forEach(s=>r.push([s.date||'',s.product||'',s.qty||0,s.unit||'']));dl("antheara-ประวัติส่งเข้าคลัง.csv",r);}
 function whSet(id,f,v){const w=whById(id);if(!w)return;if(f==='qty'||f==='reorder')w[f]=Math.max(0,parseFloat(v)||0);else w[f]=v;save();if(f==='qty'||f==='reorder')refreshAlert();}
 function addWh(){state.warehouse.push({id:uid('W'),name:'',qty:0,unit:'',reorder:0});save();go('wh');}
 function delWh(id){state.warehouse=state.warehouse.filter(w=>w.id!==id);save();go('wh');toast("ลบแล้ว");}
@@ -332,11 +345,14 @@ function shipToWh(){
   openModal(`<div class="mh"><h3>🚚 ส่งเข้าคลังรังสิต</h3><button class="x" onclick="closeModal()">×</button></div>
    <div class="mb">
      <div class="field"><label>สินค้า *</label><select id="sh-prod" onchange="shCalc()">${avail.map(f=>`<option value="${f.id}">${esc(f.name)} — ที่โรงงานเหลือ ${fmt(f.qty)} ${esc(f.unit)}</option>`).join("")}</select></div>
-     <div class="field"><label>จำนวนที่ส่ง *</label><input id="sh-qty" type="number" step="any" placeholder="เช่น 5000" oninput="shCalc()"></div>
+     <div class="frow">
+       <div class="field"><label>จำนวนที่ส่ง *</label><input id="sh-qty" type="number" step="any" placeholder="เช่น 5000" oninput="shCalc()"></div>
+       <div class="field"><label>วันที่ส่ง</label><input id="sh-date" type="date"></div>
+     </div>
      <div class="prev" id="sh-prev"></div>
    </div>
    <div class="mf"><button class="btn" onclick="closeModal()">ยกเลิก</button><button class="btn btn-primary" onclick="doShip()">✓ ส่งเข้าคลัง</button></div>`);
-  setTimeout(()=>{shCalc();document.getElementById("sh-qty").focus();},50);
+  setTimeout(()=>{document.getElementById("sh-date").value=new Date().toISOString().slice(0,10);shCalc();document.getElementById("sh-qty").focus();},50);
 }
 function shCalc(){
   const f=finById(document.getElementById("sh-prod").value);if(!f)return;
@@ -348,11 +364,14 @@ function shCalc(){
 function doShip(){
   const f=finById(document.getElementById("sh-prod").value);if(!f)return;
   const qty=Math.max(0,parseFloat(document.getElementById("sh-qty").value)||0);
+  const date=document.getElementById("sh-date").value||new Date().toISOString().slice(0,10);
   if(qty<=0){toast("ใส่จำนวน",true);return;}
   if(qty>(f.qty||0)){toast(`ส่งได้ไม่เกิน ${fmt(f.qty)} ${f.unit} (ที่โรงงานมี)`,true);return;}
   f.qty=(f.qty||0)-qty;
   let w=state.warehouse.find(x=>(x.name||'').trim()===(f.name||'').trim());
   if(w){w.qty=(w.qty||0)+qty;}else{state.warehouse.push({id:uid('W'),name:f.name,qty,unit:f.unit,reorder:0});}
+  state.shipments=state.shipments||[];
+  state.shipments.push({id:uid('S'),date,product:f.name,qty,unit:f.unit});
   save();closeModal();toast("ส่งเข้าคลังรังสิตแล้ว — หักจากโรงงานให้แล้ว");go(current==='wh'?'wh':'fin');
 }
 function renderPays(el){
